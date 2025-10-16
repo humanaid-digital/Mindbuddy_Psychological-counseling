@@ -1,31 +1,49 @@
-FROM maven:3.9-eclipse-temurin-17 AS build
+# Multi-stage build for production
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# 의존성 캐싱을 위해 pom.xml 먼저 복사
-COPY pom.xml .
-RUN mvn dependency:go-offline
+# Copy package files
+COPY package*.json ./
 
-# 소스 코드 복사
-COPY src ./src
+# Install all dependencies (including dev dependencies for building)
+RUN npm ci
 
-# 애플리케이션 빌드
-RUN mvn clean package -DskipTests
+# Copy source code
+COPY . .
 
-# 실행 이미지
-FROM eclipse-temurin:17-jre
+# Run tests and build
+RUN npm run test
+RUN npm run lint
+
+# Production stage
+FROM node:18-alpine AS production
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
 
 WORKDIR /app
 
-# 빌드 이미지에서 JAR 파일 복사
-COPY --from=build /app/target/*.jar app.jar
+# Copy package files
+COPY package*.json ./
 
-# 환경 변수 설정
-ENV PORT=8080
-ENV SPRING_PROFILES_ACTIVE=prod
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
 
-# 포트 노출
-EXPOSE 8080
+# Copy built application from builder stage
+COPY --from=builder --chown=nodejs:nodejs /app .
 
-# 애플리케이션 실행
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Create necessary directories
+RUN mkdir -p logs uploads && chown -R nodejs:nodejs logs uploads
+
+# Switch to non-root user
+USER nodejs
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:5000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+EXPOSE 5000
+
+CMD ["npm", "start"]

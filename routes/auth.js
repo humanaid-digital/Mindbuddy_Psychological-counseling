@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const Counselor = require('../models/Counselor');
 const { auth } = require('../middleware/auth');
+const { loginLimiter, registerLimiter } = require('../middleware/security');
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ const generateToken = (userId) => {
 // @route   POST /api/auth/register/client
 // @desc    상담자 회원가입
 // @access  Public
-router.post('/register/client', [
+router.post('/register/client', registerLimiter, [
   body('name').trim().isLength({ min: 2, max: 50 }).withMessage('이름은 2-50자 사이여야 합니다'),
   body('email').isEmail().normalizeEmail().withMessage('올바른 이메일을 입력해주세요'),
   body('password').isLength({ min: 6 }).withMessage('비밀번호는 최소 6자 이상이어야 합니다'),
@@ -91,7 +92,7 @@ router.post('/register/client', [
 // @route   POST /api/auth/register/counselor
 // @desc    상담사 회원가입
 // @access  Public
-router.post('/register/counselor', [
+router.post('/register/counselor', registerLimiter, [
   body('name').trim().isLength({ min: 2, max: 50 }).withMessage('이름은 2-50자 사이여야 합니다'),
   body('email').isEmail().normalizeEmail().withMessage('올바른 이메일을 입력해주세요'),
   body('password').isLength({ min: 6 }).withMessage('비밀번호는 최소 6자 이상이어야 합니다'),
@@ -194,7 +195,7 @@ router.post('/register/counselor', [
 // @route   POST /api/auth/login
 // @desc    로그인
 // @access  Public
-router.post('/login', [
+router.post('/login', loginLimiter, [
   body('email').isEmail().normalizeEmail().withMessage('올바른 이메일을 입력해주세요'),
   body('password').isLength({ min: 1 }).withMessage('비밀번호를 입력해주세요'),
   body('userType').optional().isIn(['client', 'counselor']).withMessage('올바른 사용자 유형을 선택해주세요')
