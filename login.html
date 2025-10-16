@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 마인드버디</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            max-width: 450px;
+            width: 100%;
+            margin: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .login-header {
+            text-align: center;
+            padding: 3rem 2rem 2rem;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .login-content {
+            padding: 2rem;
+        }
+
+        .user-type-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 0.3rem;
+        }
+
+        .user-type-tab {
+            flex: 1;
+            padding: 0.8rem;
+            text-align: center;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .user-type-tab.active {
+            background: #fbbf24;
+            color: #1e3a8a;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #fbbf24;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: auto;
+        }
+
+        .forgot-password {
+            color: #1e3a8a;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            background: #fbbf24;
+            color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(251, 191, 36, 0.4);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+            color: #666;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+            z-index: 1;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .social-login {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-social {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .btn-social:hover {
+            border-color: #fbbf24;
+            transform: translateY(-2px);
+        }
+
+        .btn-google {
+            color: #db4437;
+        }
+
+        .btn-kakao {
+            color: #3c1e1e;
+            background: #fee500;
+            border-color: #fee500;
+        }
+
+        .btn-naver {
+            color: white;
+            background: #03c75a;
+            border-color: #03c75a;
+        }
+
+        .signup-link {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .signup-link a {
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border: 1px solid #fcc;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #363;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border: 1px solid #cfc;
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                margin: 1rem;
+            }
+
+            .login-header {
+                padding: 2rem 1rem 1rem;
+            }
+
+            .login-content {
+                padding: 1.5rem;
+            }
+
+            .social-login {
+                flex-direction: column;
+            }
+
+            .back-link {
+                position: static;
+                display: block;
+                text-align: center;
+                margin-bottom: 1rem;
+                color: #1e3a8a;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">← 메인으로 돌아가기</a>
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">마인드버디</div>
+            <h1>로그인</h1>
+            <p>마음의 건강을 위한 여정을 계속하세요</p>
+        </div>
+
+        <div class="login-content">
+            <div class="user-type-tabs">
+                <button class="user-type-tab active" data-type="client">상담받기</button>
+                <button class="user-type-tab" data-type="counselor">상담사</button>
+            </div>
+
+            <form id="loginForm">
+                <div id="message-container"></div>
+                
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+                </div>
+
+                <div class="form-options">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">로그인 상태 유지</label>
+                    </div>
+                    <a href="#" class="forgot-password">비밀번호 찾기</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="loginBtn">로그인</button>
+            </form>
+
+            <div class="divider">
+                <span>또는</span>
+            </div>
+
+            <div class="social-login">
+                <button class="btn-social btn-google">
+                    <span>🔍</span>
+                    구글
+                </button>
+                <button class="btn-social btn-kakao">
+                    <span>💬</span>
+                    카카오
+                </button>
+                <button class="btn-social btn-naver">
+                    <span>N</span>
+                    네이버
+                </button>
+            </div>
+
+            <div class="signup-link">
+                <p>아직 계정이 없으신가요? <a href="signup.html">회원가입</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userTypeTabs = document.querySelectorAll('.user-type-tab');
+            const loginForm = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const messageContainer = document.getElementById('message-container');
+            let currentUserType = 'client';
+
+            // 사용자 유형 탭 처리
+            userTypeTabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    userTypeTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentUserType = this.dataset.type;
+                });
+            });
+
+            // 메시지 표시
+            function showMessage(message, type = 'info') {
+                messageContainer.innerHTML = '';
+                const messageDiv = document.createElement('div');
+                messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+                messageDiv.textContent = message;
+                messageContainer.appendChild(messageDiv);
+            }
+
+            // 로딩 상태 관리
+            function setLoading(loading) {
+                if (loading) {
+                    loginBtn.disabled = true;
+                    loginBtn.innerHTML = '<span class="loading">⟳</span> 로그인 중...';
+                } else {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '로그인';
+                }
+            }
+
+            // API 호출 함수
+            async function callLoginAPI(loginData) {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || '로그인에 실패했습니다.');
+                }
+                
+                return data;
+            }
+
+            // 로그인 폼 제출 처리
+            loginForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+
+                if (!email || !password) {
+                    showMessage('이메일과 비밀번호를 입력해주세요.', 'error');
+                    return;
+                }
+
+                setLoading(true);
+                messageContainer.innerHTML = '';
+
+                try {
+                    const loginData = {
+                        email: email,
+                        password: password,
+                        userType: currentUserType
+                    };
+
+                    console.log('로그인 시도:', { email, userType: currentUserType });
+
+                    const response = await callLoginAPI(loginData);
+                    
+                    if (response.success) {
+                        // 토큰과 사용자 정보 저장
+                        if (response.data.token) {
+                            localStorage.setItem('token', response.data.token);
+                            localStorage.setItem('userInfo', JSON.stringify(response.data.user));
+                        }
+                        
+                        if (response.data.counselor) {
+                            localStorage.setItem('counselorInfo', JSON.stringify(response.data.counselor));
+                        }
+
+                        showMessage('로그인 성공! 잠시 후 대시보드로 이동합니다.', 'success');
+                        
+                        // 1초 후 대시보드로 이동
+                        setTimeout(() => {
+                            const userRole = response.data.user.role;
+                            switch (userRole) {
+                                case 'client':
+                                    window.location.href = '/client-dashboard';
+                                    break;
+                                case 'counselor':
+                                    window.location.href = '/counselor-dashboard';
+                                    break;
+                                case 'admin':
+                                    window.location.href = '/admin';
+                                    break;
+                                default:
+                                    window.location.href = '/';
+                            }
+                        }, 1000);
+                    } else {
+                        showMessage(response.message || '로그인에 실패했습니다.', 'error');
+                    }
+                } catch (error) {
+                    console.error('로그인 오류:', error);
+                    let errorMessage = '로그인 중 오류가 발생했습니다.';
+                    
+                    if (error.message) {
+                        if (error.message.includes('이메일') || error.message.includes('비밀번호')) {
+                            errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
+                        } else if (error.message.includes('승인')) {
+                            errorMessage = '상담사 승인이 완료되지 않았습니다. 관리자 승인을 기다려주세요.';
+                        } else {
+                            errorMessage = error.message;
+                        }
+                    }
+                    
+                    showMessage(errorMessage, 'error');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            // 이미 로그인된 사용자 체크
+            const token = localStorage.getItem('token');
+            const userInfo = localStorage.getItem('userInfo');
+            if (token && userInfo) {
+                try {
+                    const user = JSON.parse(userInfo);
+                    const userRole = user.role;
+                    switch (userRole) {
+                        case 'client':
+                            window.location.href = '/client-dashboard';
+                            break;
+                        case 'counselor':
+                            window.location.href = '/counselor-dashboard';
+                            break;
+                        case 'admin':
+                            window.location.href = '/admin';
+                            break;
+                    }
+                } catch (e) {
+                    // 잘못된 사용자 정보는 제거
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userInfo');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

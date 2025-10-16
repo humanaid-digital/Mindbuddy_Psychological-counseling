@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 - 마인드버디</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .menu-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .menu-link:hover, .menu-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-right: 4px solid white;
+        }
+
+        .menu-icon {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .stat-icon.users {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        .stat-icon.counselors {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-icon.sessions {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-icon.revenue {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .stat-change {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.positive {
+            color: #28a745;
+        }
+
+        .stat-change.negative {
+            color: #dc3545;
+        }
+
+        /* Content Sections */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* Tables */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-active {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #fbbf24;
+            color: #1e3a8a;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Chart placeholder */
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e3a8a;
+            font-size: 1.1rem;
+        }
+
+        /* Recent Activity */
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fef3c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: #1e3a8a;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .activity-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .main-content {
+                margin-left: 250px;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">마인드버디</div>
+                <div class="sidebar-subtitle">관리자 패널</div>
+            </div>
+            <nav>
+                <ul class="sidebar-menu">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link active">
+                            <span class="menu-icon">📊</span>
+                            대시보드
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <span class="menu-icon">👥</span>
+                            사용자 관리
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <span class="menu-icon">👨‍⚕️</span>
+                            상담사 관리
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <span class="menu-icon">📅</span>
+                            상담 세션
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <span class="menu-icon">💰</span>
+                            결제 관리
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <span class="menu-icon">📝</span>
+                            리뷰 관리
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <span class="menu-icon">📈</span>
+                            통계 분석
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <span class="menu-icon">⚙️</span>
+                            시스템 설정
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="index.html" class="menu-link">
+                            <span class="menu-icon">🚪</span>
+                            메인으로
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1>대시보드</h1>
+                <div class="admin-info">
+                    <span>관리자님, 안녕하세요!</span>
+                    <div class="admin-avatar">관</div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon users">👥</div>
+                    <div class="stat-number">1,247</div>
+                    <div class="stat-label">총 사용자</div>
+                    <div class="stat-change positive">+12% 이번 달</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon counselors">👨‍⚕️</div>
+                    <div class="stat-number">89</div>
+                    <div class="stat-label">활성 상담사</div>
+                    <div class="stat-change positive">+5% 이번 달</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon sessions">📅</div>
+                    <div class="stat-number">3,456</div>
+                    <div class="stat-label">총 상담 세션</div>
+                    <div class="stat-change positive">+18% 이번 달</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon revenue">💰</div>
+                    <div class="stat-number">₩24.5M</div>
+                    <div class="stat-label">이번 달 수익</div>
+                    <div class="stat-change positive">+22% 이번 달</div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Chart Section -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">월별 상담 세션 통계</h3>
+                        <select class="btn btn-secondary">
+                            <option>최근 6개월</option>
+                            <option>최근 1년</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-placeholder">
+                            📊 차트가 여기에 표시됩니다
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">최근 활동</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-item">
+                            <div class="activity-icon">👤</div>
+                            <div class="activity-content">
+                                <div class="activity-text">새로운 사용자가 가입했습니다</div>
+                                <div class="activity-time">5분 전</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">👨‍⚕️</div>
+                            <div class="activity-content">
+                                <div class="activity-text">김상담 상담사가 승인되었습니다</div>
+                                <div class="activity-time">1시간 전</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">📅</div>
+                            <div class="activity-content">
+                                <div class="activity-text">상담 세션이 완료되었습니다</div>
+                                <div class="activity-time">2시간 전</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">💰</div>
+                            <div class="activity-content">
+                                <div class="activity-text">결제가 처리되었습니다</div>
+                                <div class="activity-time">3시간 전</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">⭐</div>
+                            <div class="activity-content">
+                                <div class="activity-text">새로운 리뷰가 등록되었습니다</div>
+                                <div class="activity-time">4시간 전</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Approvals -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">승인 대기 중인 상담사</h3>
+                    <a href="#" class="btn btn-primary">전체 보기</a>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>자격증</th>
+                                <th>경력</th>
+                                <th>신청일</th>
+                                <th>상태</th>
+                                <th>액션</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>박상담</td>
+                                <td>임상심리사</td>
+                                <td>5년</td>
+                                <td>2024.09.28</td>
+                                <td><span class="status-badge status-pending">검토중</span></td>
+                                <td>
+                                    <button class="btn btn-success">승인</button>
+                                    <button class="btn btn-danger">거절</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>최심리</td>
+                                <td>상담심리사</td>
+                                <td>3년</td>
+                                <td>2024.09.27</td>
+                                <td><span class="status-badge status-pending">검토중</span></td>
+                                <td>
+                                    <button class="btn btn-success">승인</button>
+                                    <button class="btn btn-danger">거절</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>정치료</td>
+                                <td>정신건강사회복지사</td>
+                                <td>7년</td>
+                                <td>2024.09.26</td>
+                                <td><span class="status-badge status-approved">승인됨</span></td>
+                                <td>
+                                    <button class="btn btn-secondary">상세보기</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

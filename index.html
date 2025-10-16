@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마인드버디 - 심리상담 플랫폼</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .nav-menu a:hover {
+            opacity: 0.8;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-primary {
+            background: #fbbf24;
+            color: #1e3a8a;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Counselor Selection Styles */
+        .counselor-selection {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .quick-filters {
+            margin-bottom: 3rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-tab {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #e1e5e9;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .filter-tab.active, .filter-tab:hover {
+            background: #fbbf24;
+            color: #1e3a8a;
+            border-color: #fbbf24;
+        }
+
+        .counselors-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .counselor-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .counselor-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .counselor-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .counselor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .counselor-info h3 {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .counselor-credentials {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stars {
+            color: #ffc107;
+        }
+
+        .rating-text {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .counselor-specialties {
+            margin-bottom: 1rem;
+        }
+
+        .specialty-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: #dbeafe;
+            color: #1e3a8a;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .counselor-description {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .counselor-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.3rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .counselor-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+        }
+
+        /* How it works */
+        .how-it-works {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: #fbbf24;
+            color: #1e3a8a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+
+        .step h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .step p {
+            color: #666;
+        }
+
+        /* Footer */
+        .footer {
+            background: #333;
+            color: white;
+            padding: 40px 0 20px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .footer-info {
+            margin-bottom: 2rem;
+            color: #ccc;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #555;
+            padding-top: 20px;
+            color: #999;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .auth-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .counselors-preview {
+                grid-template-columns: 1fr;
+            }
+
+            .counselor-actions {
+                flex-direction: column;
+            }
+
+            .filter-tabs {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="#" class="logo">마인드버디</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#features">서비스 소개</a></li>
+                    <li><a href="#counselors">상담사 찾기</a></li>
+                    <li><a href="#how-it-works">이용방법</a></li>
+                    <li><a href="#contact">문의하기</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <a href="login.html" class="btn btn-outline">로그인</a>
+                <a href="signup.html" class="btn btn-primary">회원가입</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <h1>마음의 건강을 위한<br>첫 걸음을 함께해요</h1>
+            <p>전문 심리상담사와 안전하고 편안한 환경에서<br>당신만의 맞춤형 상담을 받아보세요</p>
+            <div class="hero-buttons">
+                <a href="signup.html" class="btn btn-primary btn-large">상담 시작하기</a>
+                <a href="counselor-register.html" class="btn btn-outline btn-large">상담사 되기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">왜 마인드버디를 선택해야 할까요?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>안전한 상담 환경</h3>
+                    <p>철저한 개인정보 보호와 익명성 보장으로 안심하고 상담받을 수 있습니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👨‍⚕️</div>
+                    <h3>검증된 전문 상담사</h3>
+                    <p>자격을 갖춘 전문 심리상담사들이 체계적이고 전문적인 상담을 제공합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>편리한 온라인 상담</h3>
+                    <p>언제 어디서나 편리하게 화상, 음성, 채팅으로 상담받을 수 있습니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>합리적인 가격</h3>
+                    <p>부담 없는 가격으로 양질의 심리상담 서비스를 이용하실 수 있습니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⏰</div>
+                    <h3>유연한 예약 시스템</h3>
+                    <p>24시간 언제든지 예약 가능하며, 본인의 일정에 맞춰 상담을 받을 수 있습니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>체계적인 관리</h3>
+                    <p>상담 기록과 진행 상황을 체계적으로 관리하여 지속적인 케어를 받을 수 있습니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Counselor Selection Section -->
+    <section class="counselor-selection" id="counselors">
+        <div class="container">
+            <h2 class="section-title">상담사 선택</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 3rem;">나에게 맞는 전문 상담사를 찾아보세요</p>
+            
+            <!-- Quick Filters -->
+            <div class="quick-filters">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-specialty="all">전체</button>
+                    <button class="filter-tab" data-specialty="depression">우울증</button>
+                    <button class="filter-tab" data-specialty="anxiety">불안장애</button>
+                    <button class="filter-tab" data-specialty="relationship">대인관계</button>
+                    <button class="filter-tab" data-specialty="family">가족상담</button>
+                    <button class="filter-tab" data-specialty="trauma">트라우마</button>
+                </div>
+            </div>
+
+            <!-- Counselors Grid -->
+            <div class="counselors-preview">
+                <div class="counselor-card">
+                    <div class="counselor-header">
+                        <div class="counselor-avatar">김</div>
+                        <div class="counselor-info">
+                            <h3>김상담 상담사</h3>
+                            <div class="counselor-credentials">임상심리사 • 8년 경력</div>
+                            <div class="rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="rating-text">4.9 (127개 리뷰)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="counselor-specialties">
+                        <span class="specialty-badge">우울증</span>
+                        <span class="specialty-badge">불안장애</span>
+                        <span class="specialty-badge">트라우마</span>
+                    </div>
+                    <div class="counselor-description">
+                        8년간 다양한 심리적 어려움을 겪고 있는 분들과 함께해왔습니다. 특히 우울증과 불안장애 치료에 전문성을 가지고 있습니다.
+                    </div>
+                    <div class="counselor-details">
+                        <div class="detail-item">
+                            <div class="detail-label">상담료</div>
+                            <div class="detail-value">80,000원</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">상담방식</div>
+                            <div class="detail-value">화상/음성</div>
+                        </div>
+                    </div>
+                    <div class="counselor-actions">
+                        <a href="booking.html" class="btn btn-primary">상담 예약</a>
+                        <a href="#" class="btn btn-secondary">프로필 보기</a>
+                    </div>
+                </div>
+
+                <div class="counselor-card">
+                    <div class="counselor-header">
+                        <div class="counselor-avatar">이</div>
+                        <div class="counselor-info">
+                            <h3>이심리 상담사</h3>
+                            <div class="counselor-credentials">상담심리사 • 12년 경력</div>
+                            <div class="rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="rating-text">4.8 (89개 리뷰)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="counselor-specialties">
+                        <span class="specialty-badge">대인관계</span>
+                        <span class="specialty-badge">가족상담</span>
+                        <span class="specialty-badge">부부상담</span>
+                    </div>
+                    <div class="counselor-description">
+                        가족과 부부 관계에서 발생하는 다양한 갈등과 문제를 해결하는 데 전문성을 가지고 있습니다.
+                    </div>
+                    <div class="counselor-details">
+                        <div class="detail-item">
+                            <div class="detail-label">상담료</div>
+                            <div class="detail-value">100,000원</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">상담방식</div>
+                            <div class="detail-value">화상/음성/채팅</div>
+                        </div>
+                    </div>
+                    <div class="counselor-actions">
+                        <a href="booking.html" class="btn btn-primary">상담 예약</a>
+                        <a href="#" class="btn btn-secondary">프로필 보기</a>
+                    </div>
+                </div>
+
+                <div class="counselor-card">
+                    <div class="counselor-header">
+                        <div class="counselor-avatar">박</div>
+                        <div class="counselor-info">
+                            <h3>박치료 상담사</h3>
+                            <div class="counselor-credentials">정신건강사회복지사 • 6년 경력</div>
+                            <div class="rating">
+                                <span class="stars">★★★★☆</span>
+                                <span class="rating-text">4.7 (156개 리뷰)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="counselor-specialties">
+                        <span class="specialty-badge">아동상담</span>
+                        <span class="specialty-badge">청소년상담</span>
+                        <span class="specialty-badge">학습상담</span>
+                    </div>
+                    <div class="counselor-description">
+                        아동과 청소년의 심리적 어려움과 학습 문제를 전문으로 다룹니다.
+                    </div>
+                    <div class="counselor-details">
+                        <div class="detail-item">
+                            <div class="detail-label">상담료</div>
+                            <div class="detail-value">70,000원</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">상담방식</div>
+                            <div class="detail-value">화상/음성</div>
+                        </div>
+                    </div>
+                    <div class="counselor-actions">
+                        <a href="booking.html" class="btn btn-primary">상담 예약</a>
+                        <a href="#" class="btn btn-secondary">프로필 보기</a>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="counselors.html" class="btn btn-primary btn-large">더 많은 상담사 보기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">이용방법</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>회원가입 및 프로필 작성</h3>
+                    <p>간단한 회원가입 후 상담 목적과 선호사항을 입력해주세요</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>상담사 선택</h3>
+                    <p>전문 분야와 리뷰를 확인하고 나에게 맞는 상담사를 선택하세요</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>예약 및 결제</h3>
+                    <p>원하는 날짜와 시간을 선택하고 안전하게 결제를 진행하세요</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>상담 진행</h3>
+                    <p>예약된 시간에 화상, 음성, 또는 채팅으로 상담을 받으세요</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">마인드버디</div>
+            <div class="footer-info">
+                <p>개발사: Human_AI_D</p>
+                <p>마음의 건강을 위한 신뢰할 수 있는 심리상담 플랫폼</p>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 마인드버디 by Human_AI_D. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

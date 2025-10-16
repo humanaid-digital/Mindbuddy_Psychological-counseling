@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상담사 가입 - 마인드버디</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid white;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #1e3a8a;
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .signup-card {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .signup-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .signup-header h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .signup-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #fbbf24;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #fbbf24;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 0.8rem;
+            border: 2px dashed #fbbf24;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fef3c7;
+        }
+
+        .file-upload-label:hover {
+            background: #fde68a;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .specialties {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .specialty-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .specialty-item input[type="checkbox"] {
+            width: auto;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #fbbf24;
+            color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(251, 191, 36, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e1e5e9;
+            border-radius: 3px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #fbbf24;
+            width: 60%;
+            transition: width 0.3s;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border: 1px solid #fcc;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #363;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border: 1px solid #cfc;
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .field-error {
+            border-color: #e74c3c !important;
+        }
+
+        .field-error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        select[multiple] {
+            height: auto;
+            min-height: 80px;
+        }
+
+        small {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .signup-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">마인드버디</a>
+            <a href="signup.html" class="back-btn">← 이전으로</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="signup-card">
+            <div class="signup-header">
+                <h1>상담사 가입</h1>
+                <p>전문 심리상담사로서 마인드버디와 함께하세요</p>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+
+            <form id="counselorRegisterForm">
+                <div id="message-container"></div>
+
+                <div class="form-section">
+                    <h3 class="section-title">기본 정보</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">이름 <span class="required">*</span></label>
+                            <input type="text" id="name" name="name" required minlength="2" maxlength="50">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">이메일 <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">연락처 <span class="required">*</span></label>
+                            <input type="tel" id="phone" name="phone" required pattern="[0-9-+().\s]+"
+                                placeholder="010-1234-5678">
+                        </div>
+                        <div class="form-group">
+                            <label for="birth">생년월일</label>
+                            <input type="date" id="birth" name="birth">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">비밀번호 <span class="required">*</span></label>
+                            <input type="password" id="password" name="password" required minlength="6"
+                                placeholder="최소 6자 이상">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">비밀번호 확인 <span class="required">*</span></label>
+                            <input type="password" id="confirm-password" name="confirm-password" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">자격 및 경력</h3>
+                    <div class="form-group">
+                        <label for="license">보유 자격증 <span class="required">*</span></label>
+                        <select id="license" name="license" required>
+                            <option value="">선택해주세요</option>
+                            <option value="clinical">임상심리사</option>
+                            <option value="counseling">상담심리사</option>
+                            <option value="social">정신건강사회복지사</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="license-number">자격증 번호 <span class="required">*</span></label>
+                        <input type="text" id="license-number" name="license-number" required
+                            placeholder="자격증 번호를 입력해주세요">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="university">최종학력 <span class="required">*</span></label>
+                            <input type="text" id="university" name="university" placeholder="예: 서울대학교 심리학과" required
+                                maxlength="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="experience">경력 (년) <span class="required">*</span></label>
+                            <input type="number" id="experience" name="experience" min="0" max="50" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="career">상세 경력사항</label>
+                        <textarea id="career" name="career" placeholder="주요 경력사항을 입력해주세요" maxlength="1000"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">전문 분야</h3>
+                    <div class="specialties">
+                        <div class="specialty-item">
+                            <input type="checkbox" id="depression" name="specialties" value="depression">
+                            <label for="depression">우울증</label>
+                        </div>
+                        <div class="specialty-item">
+                            <input type="checkbox" id="anxiety" name="specialties" value="anxiety">
+                            <label for="anxiety">불안장애</label>
+                        </div>
+                        <div class="specialty-item">
+                            <input type="checkbox" id="trauma" name="specialties" value="trauma">
+                            <label for="trauma">트라우마</label>
+                        </div>
+                        <div class="specialty-item">
+                            <input type="checkbox" id="relationship" name="specialties" value="relationship">
+                            <label for="relationship">대인관계</label>
+                        </div>
+                        <div class="specialty-item">
+                            <input type="checkbox" id="family" name="specialties" value="family">
+                            <label for="family">가족상담</label>
+                        </div>
+                        <div class="specialty-item">
+                            <input type="checkbox" id="couple" name="specialties" value="couple">
+                            <label for="couple">부부상담</label>
+                        </div>
+                        <div class="specialty-item">
+                            <input type="checkbox" id="child" name="specialties" value="child">
+                            <label for="child">아동상담</label>
+                        </div>
+                        <div class="specialty-item">
+                            <input type="checkbox" id="addiction" name="specialties" value="addiction">
+                            <label for="addiction">중독치료</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">상담 정보</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fee">상담료 (1회/50분) <span class="required">*</span></label>
+                            <input type="number" id="fee" name="fee" placeholder="원" required min="10000" max="500000">
+                        </div>
+                        <div class="form-group">
+                            <label for="method">상담 방식</label>
+                            <select id="method" name="method" multiple>
+                                <option value="video" selected>화상상담</option>
+                                <option value="voice">음성상담</option>
+                                <option value="chat">채팅상담</option>
+                            </select>
+                            <small>Ctrl/Cmd 키를 누르고 클릭하여 여러 개 선택 가능</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="introduction">자기소개 <span class="required">*</span></label>
+                        <textarea id="introduction" name="introduction" placeholder="내담자들에게 보여질 자기소개를 작성해주세요" required
+                            minlength="10" maxlength="2000"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">서류 제출</h3>
+                    <div class="form-group">
+                        <label for="license-file">자격증 사본 <span class="required">*</span></label>
+                        <div class="file-upload">
+                            <input type="file" id="license-file" name="license-file" accept=".pdf,.jpg,.png" required>
+                            <label for="license-file" class="file-upload-label">
+                                📄 자격증 파일을 선택하세요 (PDF, JPG, PNG)
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="resume">이력서 <span class="required">*</span></label>
+                        <div class="file-upload">
+                            <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+                            <label for="resume" class="file-upload-label">
+                                📄 이력서 파일을 선택하세요 (PDF, DOC, DOCX)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">개인정보 처리방침 및 이용약관에 동의합니다 <span class="required">*</span></label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="marketing" name="marketing">
+                        <label for="marketing">마케팅 정보 수신에 동의합니다 (선택)</label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">가입 신청</button>
+                    <a href="signup.html" class="btn btn-secondary">이전으로</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- API 스크립트 -->
+    <script src="/js/api.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('counselorRegisterForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const messageContainer = document.getElementById('message-container');
+
+            // 폼 유효성 검사
+            function validateForm() {
+                let isValid = true;
+                const errors = [];
+
+                // 기존 에러 메시지 제거
+                document.querySelectorAll('.field-error').forEach(el => {
+                    el.classList.remove('field-error');
+                });
+                document.querySelectorAll('.field-error-message').forEach(el => {
+                    el.remove();
+                });
+
+                // 이름 검사
+                const name = document.getElementById('name').value.trim();
+                if (!name || name.length < 2) {
+                    showFieldError('name', '이름은 2자 이상 입력해주세요.');
+                    isValid = false;
+                }
+
+                // 이메일 검사
+                const email = document.getElementById('email').value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!email || !emailRegex.test(email)) {
+                    showFieldError('email', '올바른 이메일 주소를 입력해주세요.');
+                    isValid = false;
+                }
+
+                // 전화번호 검사
+                const phone = document.getElementById('phone').value.trim();
+                const phoneRegex = /^[0-9-+().\s]+$/;
+                if (!phone || !phoneRegex.test(phone)) {
+                    showFieldError('phone', '올바른 전화번호를 입력해주세요.');
+                    isValid = false;
+                }
+
+                // 비밀번호 검사
+                const password = document.getElementById('password').value;
+                if (!password || password.length < 6) {
+                    showFieldError('password', '비밀번호는 6자 이상 입력해주세요.');
+                    isValid = false;
+                }
+
+                // 비밀번호 확인 검사
+                const confirmPassword = document.getElementById('confirm-password').value;
+                if (password !== confirmPassword) {
+                    showFieldError('confirm-password', '비밀번호가 일치하지 않습니다.');
+                    isValid = false;
+                }
+
+                // 자격증 검사
+                const license = document.getElementById('license').value;
+                if (!license) {
+                    showFieldError('license', '자격증을 선택해주세요.');
+                    isValid = false;
+                }
+
+                // 자격증 번호 검사
+                const licenseNumber = document.getElementById('license-number').value.trim();
+                if (!licenseNumber) {
+                    showFieldError('license-number', '자격증 번호를 입력해주세요.');
+                    isValid = false;
+                }
+
+                // 최종학력 검사
+                const university = document.getElementById('university').value.trim();
+                if (!university) {
+                    showFieldError('university', '최종학력을 입력해주세요.');
+                    isValid = false;
+                }
+
+                // 경력 검사
+                const experience = document.getElementById('experience').value;
+                if (!experience || experience < 0) {
+                    showFieldError('experience', '경력을 입력해주세요.');
+                    isValid = false;
+                }
+
+                // 전문분야 검사
+                const specialties = document.querySelectorAll('input[name="specialties"]:checked');
+                if (specialties.length === 0) {
+                    errors.push('최소 1개의 전문분야를 선택해주세요.');
+                    isValid = false;
+                }
+
+                // 상담료 검사
+                const fee = document.getElementById('fee').value;
+                if (!fee || fee < 10000 || fee > 500000) {
+                    showFieldError('fee', '상담료는 10,000원 이상 500,000원 이하로 입력해주세요.');
+                    isValid = false;
+                }
+
+                // 자기소개 검사
+                const introduction = document.getElementById('introduction').value.trim();
+                if (!introduction || introduction.length < 10) {
+                    showFieldError('introduction', '자기소개는 10자 이상 입력해주세요.');
+                    isValid = false;
+                }
+
+                // 약관 동의 검사
+                if (!document.getElementById('terms').checked) {
+                    errors.push('이용약관에 동의해주세요.');
+                    isValid = false;
+                }
+
+                if (errors.length > 0) {
+                    showMessage(errors.join('<br>'), 'error');
+                }
+
+                return isValid;
+            }
+
+            // 필드 에러 표시
+            function showFieldError(fieldId, message) {
+                const field = document.getElementById(fieldId);
+                field.classList.add('field-error');
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error-message';
+                errorDiv.textContent = message;
+                field.parentNode.appendChild(errorDiv);
+            }
+
+            // 메시지 표시
+            function showMessage(message, type = 'info') {
+                messageContainer.innerHTML = '';
+                const messageDiv = document.createElement('div');
+                messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+                messageDiv.innerHTML = message;
+                messageContainer.appendChild(messageDiv);
+
+                // 메시지 위치로 스크롤
+                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // 로딩 상태 관리
+            function setLoading(loading) {
+                if (loading) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="loading">⟳</span> 처리 중...';
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '가입 신청';
+                }
+            }
+
+            // 폼 데이터 수집
+            function getFormData() {
+                const formData = new FormData(form);
+                const data = {};
+
+                // 기본 정보
+                data.name = formData.get('name').trim();
+                data.email = formData.get('email').trim();
+                data.phone = formData.get('phone').trim();
+                data.password = formData.get('password');
+
+                // 생년월일 (선택사항)
+                const birthDate = formData.get('birth');
+                if (birthDate) {
+                    data.birthDate = birthDate;
+                }
+
+                // 자격 및 경력
+                data.license = formData.get('license');
+                data.licenseNumber = formData.get('license-number').trim();
+                data.university = formData.get('university').trim();
+                data.experience = parseInt(formData.get('experience'));
+
+                const careerDetails = formData.get('career');
+                if (careerDetails && careerDetails.trim()) {
+                    data.careerDetails = careerDetails.trim();
+                }
+
+                // 전문분야 수집
+                const specialties = [];
+                document.querySelectorAll('input[name="specialties"]:checked').forEach(checkbox => {
+                    specialties.push(checkbox.value);
+                });
+                data.specialties = specialties;
+
+                // 상담 정보
+                data.fee = parseInt(formData.get('fee'));
+
+                // 상담 방식 수집 (다중 선택)
+                const methodSelect = document.getElementById('method');
+                const methods = [];
+                for (let option of methodSelect.selectedOptions) {
+                    methods.push(option.value);
+                }
+                data.methods = methods.length > 0 ? methods : ['video'];
+
+                data.introduction = formData.get('introduction').trim();
+
+                // 마케팅 동의
+                data.marketingConsent = document.getElementById('marketing').checked;
+
+                return data;
+            }
+
+            // 폼 제출 처리
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                if (!validateForm()) {
+                    return;
+                }
+
+                setLoading(true);
+                messageContainer.innerHTML = '';
+
+                try {
+                    const formData = getFormData();
+                    console.log('상담사 회원가입 데이터:', formData);
+
+                    // API 호출
+                    const response = await fetch('/api/auth/register/counselor', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || '가입 신청 중 오류가 발생했습니다.');
+                    }
+
+                    if (result.success) {
+                        showMessage(
+                            '상담사 가입 신청이 완료되었습니다!<br>' +
+                            '관리자 승인 후 서비스를 이용하실 수 있습니다.<br>' +
+                            '승인 결과는 이메일로 안내드리겠습니다.<br>' +
+                            '잠시 후 로그인 페이지로 이동합니다.',
+                            'success'
+                        );
+
+                        // 3초 후 로그인 페이지로 이동
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 3000);
+                    } else {
+                        showMessage(result.message || '가입 신청 중 오류가 발생했습니다.', 'error');
+                    }
+                } catch (error) {
+                    console.error('상담사 회원가입 오류:', error);
+                    let errorMessage = '가입 신청 중 오류가 발생했습니다.';
+
+                    if (error.message) {
+                        errorMessage = error.message;
+                    }
+
+                    showMessage(errorMessage, 'error');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            // 실시간 비밀번호 확인
+            document.getElementById('confirm-password').addEventListener('input', function () {
+                const password = document.getElementById('password').value;
+                const confirmPassword = this.value;
+
+                if (confirmPassword && password !== confirmPassword) {
+                    this.classList.add('field-error');
+                } else {
+                    this.classList.remove('field-error');
+                }
+            });
+
+            // 상담료 포맷팅
+            document.getElementById('fee').addEventListener('input', function () {
+                const value = parseInt(this.value);
+                if (value && value >= 10000) {
+                    // 천 단위 콤마 추가는 선택사항
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

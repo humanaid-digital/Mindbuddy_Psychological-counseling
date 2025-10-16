@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상담 예약 - 마인드버디</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid white;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #1e3a8a;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        .booking-form {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .booking-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .booking-title {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .booking-subtitle {
+            color: #666;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 1rem;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e1e5e9;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .step.active .step-number {
+            background: #fbbf24;
+            color: #1e3a8a;
+        }
+
+        .step.completed .step-number {
+            background: #28a745;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .step.active .step-label {
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #fbbf24;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #fbbf24;
+        }
+
+        .date-time-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .time-slot {
+            padding: 0.8rem;
+            border: 2px solid #e1e5e9;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .time-slot:hover {
+            border-color: #fbbf24;
+        }
+
+        .time-slot.selected {
+            background: #fbbf24;
+            color: #1e3a8a;
+            border-color: #fbbf24;
+        }
+
+        .time-slot.unavailable {
+            background: #f8f9fa;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .method-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .method-option {
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .method-option:hover {
+            border-color: #fbbf24;
+        }
+
+        .method-option.selected {
+            border-color: #fbbf24;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+
+        .method-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .method-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .method-desc {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #fbbf24;
+            color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(251, 191, 36, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        /* Booking Summary */
+        .booking-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .summary-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .counselor-profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .counselor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .counselor-info h3 {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .counselor-credentials {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .counselor-rating {
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+
+        .summary-details {
+            margin-bottom: 2rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .summary-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .total-amount {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .total-label {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .booking-summary {
+                order: -1;
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .date-time-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .method-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .time-slots {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="design-preview.html" class="logo">마인드버디</a>
+            <a href="counselors.html" class="back-btn">← 상담사 목록</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Booking Form -->
+        <div class="booking-form">
+            <div class="booking-header">
+                <h1 class="booking-title">상담 예약</h1>
+                <p class="booking-subtitle">김상담 상담사와의 상담을 예약해보세요</p>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step completed">
+                    <div class="step-number">1</div>
+                    <div class="step-label">상담사 선택</div>
+                </div>
+                <div class="step active">
+                    <div class="step-number">2</div>
+                    <div class="step-label">예약 정보</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-label">결제</div>
+                </div>
+            </div>
+
+            <form>
+                <div class="form-section">
+                    <h3 class="section-title">날짜 및 시간 선택</h3>
+                    <div class="date-time-grid">
+                        <div class="form-group">
+                            <label for="date">희망 날짜 <span class="required">*</span></label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>희망 시간 <span class="required">*</span></label>
+                            <div class="time-slots">
+                                <div class="time-slot">09:00</div>
+                                <div class="time-slot">10:00</div>
+                                <div class="time-slot unavailable">11:00</div>
+                                <div class="time-slot">14:00</div>
+                                <div class="time-slot selected">15:00</div>
+                                <div class="time-slot">16:00</div>
+                                <div class="time-slot">17:00</div>
+                                <div class="time-slot unavailable">18:00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">상담 방식 선택</h3>
+                    <div class="method-options">
+                        <div class="method-option selected">
+                            <div class="method-icon">📹</div>
+                            <div class="method-name">화상상담</div>
+                            <div class="method-desc">얼굴을 보며 상담</div>
+                        </div>
+                        <div class="method-option">
+                            <div class="method-icon">🎤</div>
+                            <div class="method-name">음성상담</div>
+                            <div class="method-desc">음성으로만 상담</div>
+                        </div>
+                        <div class="method-option">
+                            <div class="method-icon">💬</div>
+                            <div class="method-name">채팅상담</div>
+                            <div class="method-desc">텍스트로 상담</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">상담 정보</h3>
+                    <div class="form-group">
+                        <label for="topic">주요 상담 주제</label>
+                        <select id="topic" name="topic">
+                            <option value="">선택해주세요</option>
+                            <option value="depression">우울증</option>
+                            <option value="anxiety">불안장애</option>
+                            <option value="trauma">트라우마</option>
+                            <option value="relationship">대인관계</option>
+                            <option value="family">가족문제</option>
+                            <option value="work">직장스트레스</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">상담사에게 전달할 메시지 (선택사항)</label>
+                        <textarea id="notes" name="notes" rows="4" placeholder="상담 전에 미리 알려주고 싶은 내용이 있다면 적어주세요"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="counselors.html" class="btn btn-secondary">이전</a>
+                    <button type="submit" class="btn btn-primary">결제하기</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Booking Summary -->
+        <div class="booking-summary">
+            <div class="summary-header">
+                <h3>예약 요약</h3>
+            </div>
+
+            <div class="counselor-profile">
+                <div class="counselor-avatar">김</div>
+                <div class="counselor-info">
+                    <h3>김상담 상담사</h3>
+                    <div class="counselor-credentials">임상심리사 • 8년 경력</div>
+                    <div class="counselor-rating">⭐ 4.9 (127개 리뷰)</div>
+                </div>
+            </div>
+
+            <div class="summary-details">
+                <div class="summary-item">
+                    <span class="summary-label">날짜</span>
+                    <span class="summary-value">2024.10.15</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">시간</span>
+                    <span class="summary-value">15:00 - 15:50</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">상담 방식</span>
+                    <span class="summary-value">화상상담</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">상담 시간</span>
+                    <span class="summary-value">50분</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">상담 주제</span>
+                    <span class="summary-value">우울증</span>
+                </div>
+            </div>
+
+            <div class="total-amount">
+                <div class="total-label">총 결제 금액</div>
+                <div class="total-price">₩80,000</div>
+            </div>
+
+            <div style="font-size: 0.9rem; color: #666; text-align: center;">
+                <p>• 예약 확정 후 24시간 전까지 무료 취소 가능</p>
+                <p>• 상담 시작 10분 전 알림 발송</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Time slot selection
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.addEventListener('click', function() {
+                if (!this.classList.contains('unavailable')) {
+                    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                    this.classList.add('selected');
+                }
+            });
+        });
+
+        // Method selection
+        document.querySelectorAll('.method-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.method-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Date change handler
+        document.getElementById('date').addEventListener('change', function() {
+            // 실제로는 서버에서 해당 날짜의 가능한 시간을 가져와야 함
+            console.log('Selected date:', this.value);
+        });
+    </script>
+</body>
+</html>
