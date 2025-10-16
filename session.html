@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>화상상담 진행중 - 마인드버디</title>
+    <!-- Jitsi Meet API -->
+    <script src="https://meet.jit.si/external_api.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow: hidden;
+        }
+
+        .session-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .session-header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .session-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+
+        .session-details {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .session-time {
+            background: #fbbf24;
+            color: #1e3a8a;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .participant-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+
+        /* Video Area */
+        .video-area {
+            flex: 1;
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .main-video {
+            position: relative;
+            background: #2a2a2a;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        /* Jitsi Meet 컨테이너 */
+        #jitsi-container {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        /* 로딩 상태 */
+        .video-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #333;
+            border-top: 4px solid #fbbf24;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .video-placeholder {
+            text-align: center;
+            color: #666;
+            padding: 2rem;
+        }
+
+        .video-placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 연결 상태 표시 */
+        .connection-status {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 10;
+        }
+
+        .connection-status.connected {
+            background: rgba(40, 167, 69, 0.8);
+        }
+
+        .connection-status.connecting {
+            background: rgba(251, 191, 36, 0.8);
+        }
+
+        .connection-status.disconnected {
+            background: rgba(220, 53, 69, 0.8);
+        }
+
+        /* Sidebar */
+        .session-sidebar {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.2rem;
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 0.5rem;
+            text-align: center;
+            border: none;
+            background: transparent;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sidebar-tab.active {
+            background: #fbbf24;
+            color: #1e3a8a;
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Chat */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            max-height: 300px;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+
+        .message.sent {
+            background: #fbbf24;
+            color: #1e3a8a;
+            margin-left: auto;
+        }
+
+        .message.received {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .message-sender {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 0.3rem;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+        }
+
+        .chat-input input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .send-btn {
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 20px;
+            background: #fbbf24;
+            color: #1e3a8a;
+            cursor: pointer;
+        }
+
+        /* Notes */
+        .notes-area {
+            height: 100%;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            height: 300px;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            resize: none;
+            outline: none;
+        }
+
+        .notes-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Controls */
+        .session-controls {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .control-btn.end {
+            background: #dc3545;
+            color: white;
+            width: 80px;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 세션 정보 */
+        .session-info-panel {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .session-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .session-info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .session-timer {
+            position: absolute;
+            left: 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fbbf24;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .video-area {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr auto;
+            }
+            
+            .session-sidebar {
+                height: 200px;
+            }
+            
+            .self-video {
+                width: 150px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .session-header {
+                padding: 0.5rem 1rem;
+            }
+            
+            .session-details {
+                gap: 1rem;
+            }
+            
+            .participant-info {
+                display: none;
+            }
+            
+            .video-area {
+                padding: 0.5rem;
+            }
+            
+            .self-video {
+                width: 120px;
+                height: 80px;
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+            
+            .session-controls {
+                padding: 0.5rem 1rem;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="session-container">
+        <!-- Header -->
+        <div class="session-header">
+            <div class="session-info">
+                <div class="logo">마인드버디</div>
+                <div class="session-details">
+                    <div class="session-time" id="sessionTimer">45:32</div>
+                    <div class="participant-info">
+                        <div class="status-indicator"></div>
+                        <span>김상담 상담사</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Area -->
+        <div class="video-area">
+            <div class="main-video">
+                <!-- 연결 상태 표시 -->
+                <div class="connection-status connecting" id="connectionStatus">
+                    연결 중...
+                </div>
+                
+                <!-- Jitsi Meet 컨테이너 -->
+                <div id="jitsi-container">
+                    <div class="video-loading" id="videoLoading">
+                        <div class="loading-spinner"></div>
+                        <div>화상상담을 준비하고 있습니다...</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;">
+                            잠시만 기다려주세요
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 화상상담이 아닌 경우 표시 -->
+                <div class="video-placeholder" id="videoPlaceholder" style="display: none;">
+                    <div class="video-placeholder-icon">💬</div>
+                    <div>음성상담 진행중</div>
+                    <div style="font-size: 0.9rem; margin-top: 1rem; opacity: 0.8;">
+                        채팅창을 통해 소통하세요
+                    </div>
+                </div>
+            </div>
+
+            <div class="session-sidebar">
+                <!-- 세션 정보 -->
+                <div class="session-info-panel">
+                    <div class="session-info-item">
+                        <span>상담사:</span>
+                        <span id="counselorName">김상담 상담사</span>
+                    </div>
+                    <div class="session-info-item">
+                        <span>상담 방식:</span>
+                        <span id="sessionMethod">화상상담</span>
+                    </div>
+                    <div class="session-info-item">
+                        <span>진행 시간:</span>
+                        <span id="sessionDuration">45:32</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-tabs">
+                    <button class="sidebar-tab active" data-tab="chat">채팅</button>
+                    <button class="sidebar-tab" data-tab="notes">메모</button>
+                </div>
+
+                <div class="tab-content">
+                    <!-- Chat Tab -->
+                    <div id="chat-tab" class="tab-panel">
+                        <div class="chat-messages">
+                            <div class="message received">
+                                <div class="message-sender">김상담 상담사</div>
+                                <div>안녕하세요! 오늘 상담을 시작하겠습니다.</div>
+                            </div>
+                            <div class="message sent">
+                                <div class="message-sender">나</div>
+                                <div>네, 안녕하세요. 잘 부탁드립니다.</div>
+                            </div>
+                            <div class="message received">
+                                <div class="message-sender">김상담 상담사</div>
+                                <div>오늘은 어떤 이야기를 나누고 싶으신가요?</div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" placeholder="메시지를 입력하세요..." id="chatInput">
+                            <button class="send-btn" id="sendBtn">전송</button>
+                        </div>
+                    </div>
+
+                    <!-- Notes Tab -->
+                    <div id="notes-tab" class="tab-panel" style="display: none;">
+                        <div class="notes-area">
+                            <textarea class="notes-textarea" placeholder="상담 중 메모사항을 기록하세요...&#10;&#10;• 오늘의 주요 주제&#10;• 느낀 점&#10;• 다음 상담에서 다룰 내용"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="session-controls">
+            <div class="session-timer" id="timerDisplay">45:32</div>
+            
+            <button class="control-btn end" id="endBtn" title="상담 종료">
+                📞
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        let jitsiApi = null;
+        let sessionData = null;
+        let sessionTimer = null;
+        let sessionStartTime = Date.now();
+
+        // 페이지 로드 시 세션 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSession();
+        });
+
+        // 세션 초기화
+        async function initializeSession() {
+            try {
+                // URL에서 세션 ID 추출 (실제로는 서버에서 전달받아야 함)
+                const urlParams = new URLSearchParams(window.location.search);
+                const sessionId = urlParams.get('sessionId') || 'demo-session-123';
+                
+                // 세션 정보 조회
+                const response = await fetch(`/api/sessions/${sessionId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('세션 정보를 불러올 수 없습니다');
+                }
+
+                sessionData = await response.json();
+                
+                // UI 업데이트
+                updateSessionInfo(sessionData.data);
+                
+                // 화상상담인 경우 Jitsi Meet 초기화
+                if (sessionData.data.method === 'video' && sessionData.data.jitsiConfig) {
+                    await initializeJitsiMeet(sessionData.data.jitsiConfig);
+                } else {
+                    // 음성상담 또는 채팅상담인 경우
+                    showNonVideoInterface(sessionData.data.method);
+                }
+
+                // 타이머 시작
+                startSessionTimer();
+
+            } catch (error) {
+                console.error('세션 초기화 오류:', error);
+                showError('세션을 시작할 수 없습니다. 페이지를 새로고침해주세요.');
+            }
+        }
+
+        // Jitsi Meet 초기화
+        async function initializeJitsiMeet(config) {
+            try {
+                const domain = config.domain;
+                const options = {
+                    roomName: config.roomName,
+                    width: '100%',
+                    height: '100%',
+                    parentNode: document.getElementById('jitsi-container'),
+                    configOverwrite: config.configOverwrite,
+                    interfaceConfigOverwrite: config.interfaceConfigOverwrite,
+                    userInfo: config.userInfo
+                };
+
+                // JWT 토큰이 있으면 추가
+                if (config.jwt) {
+                    options.jwt = config.jwt;
+                }
+
+                // Jitsi Meet API 초기화
+                jitsiApi = new JitsiMeetExternalAPI(domain, options);
+
+                // 이벤트 리스너 등록
+                setupJitsiEventListeners();
+
+                // 로딩 화면 숨기기
+                document.getElementById('videoLoading').style.display = 'none';
+
+            } catch (error) {
+                console.error('Jitsi Meet 초기화 오류:', error);
+                showError('화상상담을 시작할 수 없습니다.');
+            }
+        }
+
+        // Jitsi Meet 이벤트 리스너 설정
+        function setupJitsiEventListeners() {
+            // 회의 참가 완료
+            jitsiApi.addEventListener('videoConferenceJoined', () => {
+                console.log('화상상담 참가 완료');
+                updateConnectionStatus('connected', '연결됨');
+            });
+
+            // 회의 종료
+            jitsiApi.addEventListener('videoConferenceLeft', () => {
+                console.log('화상상담 종료');
+                updateConnectionStatus('disconnected', '연결 해제됨');
+            });
+
+            // 참가자 참가
+            jitsiApi.addEventListener('participantJoined', (participant) => {
+                console.log('참가자 참가:', participant);
+                addChatMessage('시스템', `${participant.displayName}님이 참가했습니다.`, 'system');
+            });
+
+            // 참가자 퇴장
+            jitsiApi.addEventListener('participantLeft', (participant) => {
+                console.log('참가자 퇴장:', participant);
+                addChatMessage('시스템', `${participant.displayName}님이 퇴장했습니다.`, 'system');
+            });
+
+            // 오류 발생
+            jitsiApi.addEventListener('errorOccurred', (error) => {
+                console.error('Jitsi Meet 오류:', error);
+                showError('화상상담 중 오류가 발생했습니다.');
+            });
+
+            // 연결 상태 변경
+            jitsiApi.addEventListener('connectionStatusChanged', (status) => {
+                console.log('연결 상태 변경:', status);
+                if (status === 'CONNECTION_ESTABLISHED') {
+                    updateConnectionStatus('connected', '연결됨');
+                } else if (status === 'CONNECTION_FAILED') {
+                    updateConnectionStatus('disconnected', '연결 실패');
+                }
+            });
+        }
+
+        // 비화상 상담 인터페이스 표시
+        function showNonVideoInterface(method) {
+            document.getElementById('jitsi-container').style.display = 'none';
+            document.getElementById('videoPlaceholder').style.display = 'flex';
+            
+            const methodText = method === 'voice' ? '음성상담' : '채팅상담';
+            document.getElementById('sessionMethod').textContent = methodText;
+            
+            updateConnectionStatus('connected', '연결됨');
+        }
+
+        // 세션 정보 업데이트
+        function updateSessionInfo(data) {
+            document.getElementById('counselorName').textContent = data.counselor.name;
+            document.getElementById('sessionMethod').textContent = 
+                data.method === 'video' ? '화상상담' : 
+                data.method === 'voice' ? '음성상담' : '채팅상담';
+        }
+
+        // 연결 상태 업데이트
+        function updateConnectionStatus(status, text) {
+            const statusElement = document.getElementById('connectionStatus');
+            statusElement.className = `connection-status ${status}`;
+            statusElement.textContent = text;
+        }
+
+        // 세션 타이머 시작
+        function startSessionTimer() {
+            sessionTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                document.getElementById('sessionTimer').textContent = timeString;
+                document.getElementById('timerDisplay').textContent = timeString;
+                document.getElementById('sessionDuration').textContent = timeString;
+            }, 1000);
+        }
+
+        // 세션 종료
+        async function endSession() {
+            if (!confirm('상담을 종료하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                // Jitsi Meet 종료
+                if (jitsiApi) {
+                    jitsiApi.dispose();
+                    jitsiApi = null;
+                }
+
+                // 타이머 정지
+                if (sessionTimer) {
+                    clearInterval(sessionTimer);
+                }
+
+                // 서버에 세션 종료 알림
+                if (sessionData) {
+                    await fetch(`/api/sessions/${sessionData.data.sessionId}/end`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                }
+
+                // 대시보드로 이동
+                const userRole = localStorage.getItem('userRole') || 'client';
+                window.location.href = userRole === 'counselor' ? 'counselor-dashboard.html' : 'client-dashboard.html';
+
+            } catch (error) {
+                console.error('세션 종료 오류:', error);
+                alert('세션 종료 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 오류 표시
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #dc3545;
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                z-index: 9999;
+                text-align: center;
+            `;
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+
+            setTimeout(() => {
+                document.body.removeChild(errorDiv);
+            }, 5000);
+        }
+
+        // Tab switching
+        document.querySelectorAll('.sidebar-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+                
+                document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.querySelectorAll('.tab-panel').forEach(panel => {
+                    panel.style.display = 'none';
+                });
+                document.getElementById(tabName + '-tab').style.display = 'block';
+            });
+        });
+
+        // Chat functionality
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addChatMessage('나', message, 'sent');
+                input.value = '';
+                
+                // 실제로는 Socket.IO나 Jitsi Meet 채팅 API를 통해 전송
+                if (jitsiApi) {
+                    jitsiApi.executeCommand('sendChatMessage', message);
+                }
+            }
+        }
+
+        function addChatMessage(sender, message, type = 'received') {
+            const chatMessages = document.querySelector('.chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `
+                <div class="message-sender">${sender}</div>
+                <div>${message}</div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 세션 종료 버튼
+        document.getElementById('endBtn').addEventListener('click', endSession);
+
+        // 페이지 언로드 시 정리
+        window.addEventListener('beforeunload', function() {
+            if (jitsiApi) {
+                jitsiApi.dispose();
+            }
+            if (sessionTimer) {
+                clearInterval(sessionTimer);
+            }
+        });
+
+        // Auto-scroll chat
+        const chatMessages = document.querySelector('.chat-messages');
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+</body>
+</html>

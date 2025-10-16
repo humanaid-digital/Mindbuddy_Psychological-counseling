@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - 마인드버디</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signup-container {
+            max-width: 900px;
+            margin: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .signup-header {
+            text-align: center;
+            padding: 3rem 2rem 2rem;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .signup-header h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .signup-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .selection-content {
+            padding: 3rem 2rem;
+        }
+
+        .user-types {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .user-type-card {
+            background: #f8f9fa;
+            border: 3px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .user-type-card:hover {
+            border-color: #fbbf24;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(251, 191, 36, 0.2);
+        }
+
+        .user-type-card.selected {
+            border-color: #fbbf24;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+
+        .user-type-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .user-type-card h3 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .user-type-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .features-list {
+            text-align: left;
+            list-style: none;
+        }
+
+        .features-list li {
+            color: #555;
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .continue-section {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+
+        .btn-primary {
+            background: #fbbf24;
+            color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(251, 191, 36, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .user-types {
+                grid-template-columns: 1fr;
+            }
+            
+            .signup-container {
+                margin: 1rem;
+            }
+            
+            .signup-header {
+                padding: 2rem 1rem 1rem;
+            }
+            
+            .selection-content {
+                padding: 2rem 1rem;
+            }
+            
+            .user-type-card {
+                padding: 2rem 1rem;
+            }
+            
+            .back-link {
+                position: static;
+                display: block;
+                text-align: center;
+                margin-bottom: 1rem;
+                color: #1e3a8a;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← 메인으로 돌아가기</a>
+    
+    <div class="signup-container">
+        <div class="signup-header">
+            <div class="logo">마인드버디</div>
+            <h1>회원가입</h1>
+            <p>어떤 서비스를 이용하시겠어요?</p>
+        </div>
+
+        <div class="selection-content">
+            <div class="user-types">
+                <div class="user-type-card" data-type="client">
+                    <div class="user-type-icon">🧑‍💼</div>
+                    <h3>상담받고 싶어요</h3>
+                    <p>전문 상담사와 함께 마음의 건강을 관리하고 싶은 분</p>
+                    <ul class="features-list">
+                        <li>다양한 전문 상담사 선택</li>
+                        <li>화상/음성/채팅 상담</li>
+                        <li>개인정보 완전 보호</li>
+                        <li>유연한 예약 시스템</li>
+                        <li>상담 기록 관리</li>
+                    </ul>
+                </div>
+
+                <div class="user-type-card" data-type="counselor">
+                    <div class="user-type-icon">👨‍⚕️</div>
+                    <h3>상담사로 활동하고 싶어요</h3>
+                    <p>전문 자격을 가진 심리상담사로 활동하고 싶은 분</p>
+                    <ul class="features-list">
+                        <li>전문 상담사 인증</li>
+                        <li>유연한 스케줄 관리</li>
+                        <li>안정적인 수익 창출</li>
+                        <li>다양한 상담 도구 제공</li>
+                        <li>지속적인 교육 지원</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="continue-section">
+                <button class="btn btn-primary" id="continueBtn" disabled>선택한 유형으로 가입하기</button>
+                <a href="index.html" class="btn btn-secondary">나중에 하기</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userTypeCards = document.querySelectorAll('.user-type-card');
+        const continueBtn = document.getElementById('continueBtn');
+        let selectedType = null;
+
+        userTypeCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selected class from all cards
+                userTypeCards.forEach(c => c.classList.remove('selected'));
+                
+                // Add selected class to clicked card
+                this.classList.add('selected');
+                
+                // Store selected type
+                selectedType = this.dataset.type;
+                
+                // Enable continue button
+                continueBtn.disabled = false;
+            });
+        });
+
+        continueBtn.addEventListener('click', function() {
+            if (selectedType === 'client') {
+                window.location.href = 'client-register.html';
+            } else if (selectedType === 'counselor') {
+                window.location.href = 'counselor-register.html';
+            }
+        });
+    </script>
+</body>
+</html>

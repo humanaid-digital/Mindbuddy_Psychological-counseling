@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # 백엔드 서비스
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: mindbridge-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - JPA_DDL_AUTO=update
+      - JPA_SHOW_SQL=false
+      - JPA_FORMAT_SQL=false
+      - JWT_SECRET=mindBridgeSecretKey2025SecureApplicationForCounseling
+      - JWT_EXPIRATION=86400000
+      - LOGGING_LEVEL=INFO
+      - APP_LOGGING_LEVEL=INFO
+      - SECURITY_LOGGING_LEVEL=INFO
+    depends_on:
+      - db
+    networks:
+      - mindbridge-network
+
+  # 프론트엔드 서비스
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        - REACT_APP_API_URL=http://localhost:8080
+    container_name: mindbridge-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - mindbridge-network
+
+  # 데이터베이스 서비스
+  db:
+    image: mysql:8.0
+    container_name: mindbridge-db
+    restart: always
+    environment:
+      - MYSQL_DATABASE=mindbridge
+      - MYSQL_USER=mindbridge
+      - MYSQL_PASSWORD=mindbridge123
+      - MYSQL_ROOT_PASSWORD=root123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mindbridge-db-data:/var/lib/mysql
+    networks:
+      - mindbridge-network
+
+networks:
+  mindbridge-network:
+    driver: bridge
+
+volumes:
+  mindbridge-db-data:
