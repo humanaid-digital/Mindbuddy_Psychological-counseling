@@ -119,10 +119,10 @@ router.get('/counselor/:counselorId', async (req, res) => {
       counselor: req.params.counselorId,
       status: 'approved'
     })
-    .populate('client', 'name')
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(parseInt(limit));
+      .populate('client', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
 
     const total = await Review.countDocuments({
       counselor: req.params.counselorId,

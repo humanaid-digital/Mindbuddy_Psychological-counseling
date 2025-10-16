@@ -76,18 +76,32 @@ async function createSampleData() {
     console.log('📝 샘플 데이터 생성 중...');
 
     // 관리자 계정 생성
-    const adminExists = await User.findOne({ email: 'admin@mindbuddy.com' });
-    if (!adminExists) {
-      const admin = new User({
-        name: '관리자',
+    const admin1Exists = await User.findOne({ email: 'admin@mindbuddy.com' });
+    if (!admin1Exists) {
+      const admin1 = new User({
+        name: '관리자1',
         email: 'admin@mindbuddy.com',
         password: 'admin123!',
         phone: '010-0000-0000',
         role: 'admin',
         isVerified: true
       });
-      await admin.save();
-      console.log('✅ 관리자 계정 생성 완료');
+      await admin1.save();
+      console.log('✅ 관리자1 계정 생성 완료');
+    }
+
+    const admin2Exists = await User.findOne({ email: 'admin2@mindbuddy.com' });
+    if (!admin2Exists) {
+      const admin2 = new User({
+        name: '관리자2',
+        email: 'admin2@mindbuddy.com',
+        password: 'admin456!',
+        phone: '010-0000-0001',
+        role: 'admin',
+        isVerified: true
+      });
+      await admin2.save();
+      console.log('✅ 관리자2 계정 생성 완료');
     }
 
     // 샘플 상담자 계정 생성
@@ -205,7 +219,8 @@ async function main() {
   console.log('✅ 데이터베이스 초기화 완료');
   console.log('');
   console.log('📋 테스트 계정 정보:');
-  console.log('   관리자: admin@mindbuddy.com / admin123!');
+  console.log('   관리자1: admin@mindbuddy.com / admin123!');
+  console.log('   관리자2: admin2@mindbuddy.com / admin456!');
   console.log('   상담자: client@test.com / test123!');
   console.log('   상담사: counselor@test.com / test123!');
   

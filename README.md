@@ -248,7 +248,8 @@ JITSI_JWT_SECRET=your-jitsi-jwt-secret
 
 데이터베이스 초기화 후 다음 테스트 계정을 사용할 수 있습니다:
 
-- **관리자**: `admin@mindbuddy.com` / `admin123!`
+- **관리자1**: `admin@mindbuddy.com` / `admin123!`
+- **관리자2**: `admin2@mindbuddy.com` / `admin456!`
 - **상담자**: `client@test.com` / `test123!`
 - **상담사**: `counselor@test.com` / `test123!`
 

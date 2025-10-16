@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>화상 채팅 테스트 - 마인드버디</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --accent: #10b981;
+            --text-primary: #1e293b;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-50);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+        }
+
+        .video-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .video-box {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .video-box h3 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        video {
+            width: 100%;
+            height: 400px;
+            background: #000;
+            border-radius: 0.5rem;
+            object-fit: cover;
+        }
+
+        .controls {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-success {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: var(--white);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 500;
+        }
+
+        .status-value {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .video-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 화상 채팅 테스트</h1>
+
+        <div class="video-container">
+            <div class="video-box">
+                <h3>내 화면</h3>
+                <video id="localVideo" autoplay muted playsinline></video>
+            </div>
+            <div class="video-box">
+                <h3>상대방 화면</h3>
+                <video id="remoteVideo" autoplay playsinline></video>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn">카메라 시작</button>
+            <button class="btn btn-success" id="callBtn" disabled>통화 시작</button>
+            <button class="btn btn-danger" id="hangupBtn" disabled>통화 종료</button>
+            <button class="btn btn-primary" id="toggleVideo">비디오 끄기</button>
+            <button class="btn btn-primary" id="toggleAudio">오디오 끄기</button>
+        </div>
+
+        <div class="status">
+            <h3 style="margin-bottom: 1rem;">연결 상태</h3>
+            <div class="status-item">
+                <span class="status-label">카메라 상태:</span>
+                <span class="status-value" id="cameraStatus">꺼짐</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">마이크 상태:</span>
+                <span class="status-value" id="micStatus">꺼짐</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">연결 상태:</span>
+                <span class="status-value" id="connectionStatus">연결 안됨</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">세션 ID:</span>
+                <span class="status-value" id="sessionId">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const startBtn = document.getElementById('startBtn');
+        const callBtn = document.getElementById('callBtn');
+        const hangupBtn = document.getElementById('hangupBtn');
+        const toggleVideoBtn = document.getElementById('toggleVideo');
+        const toggleAudioBtn = document.getElementById('toggleAudio');
+
+        let localStream;
+        let remoteStream;
+        let peerConnection;
+        let socket;
+        let sessionId = 'test-session-' + Date.now();
+
+        const configuration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+
+        // 상태 업데이트
+        function updateStatus(element, text, color = '#10b981') {
+            document.getElementById(element).textContent = text;
+            document.getElementById(element).style.color = color;
+        }
+
+        // Socket.IO 연결
+        function connectSocket() {
+            socket = io();
+            
+            socket.on('connect', () => {
+                console.log('Socket 연결됨:', socket.id);
+                updateStatus('connectionStatus', '서버 연결됨');
+                document.getElementById('sessionId').textContent = sessionId;
+                socket.emit('join-session', sessionId);
+            });
+
+            socket.on('video-offer', async (data) => {
+                console.log('Offer 수신:', data);
+                await handleOffer(data);
+            });
+
+            socket.on('video-answer', async (data) => {
+                console.log('Answer 수신:', data);
+                await handleAnswer(data);
+            });
+
+            socket.on('ice-candidate', async (data) => {
+                console.log('ICE Candidate 수신:', data);
+                await handleIceCandidate(data);
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Socket 연결 해제');
+                updateStatus('connectionStatus', '연결 끊김', '#ef4444');
+            });
+        }
+
+        // 카메라 시작
+        startBtn.onclick = async () => {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
+                
+                localVideo.srcObject = localStream;
+                updateStatus('cameraStatus', '켜짐');
+                updateStatus('micStatus', '켜짐');
+                
+                startBtn.disabled = true;
+                callBtn.disabled = false;
+                
+                connectSocket();
+                
+                console.log('카메라 시작 성공');
+            } catch (error) {
+                console.error('카메라 접근 오류:', error);
+                alert('카메라/마이크 접근 권한이 필요합니다.');
+            }
+        };
+
+        // 통화 시작
+        callBtn.onclick = async () => {
+            try {
+                peerConnection = new RTCPeerConnection(configuration);
+                
+                // 로컬 스트림 추가
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+
+                // 원격 스트림 수신
+                peerConnection.ontrack = (event) => {
+                    console.log('원격 스트림 수신:', event.streams[0]);
+                    remoteVideo.srcObject = event.streams[0];
+                    updateStatus('connectionStatus', '통화 중');
+                };
+
+                // ICE Candidate 처리
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        socket.emit('ice-candidate', {
+                            sessionId: sessionId,
+                            candidate: event.candidate
+                        });
+                    }
+                };
+
+                // Offer 생성 및 전송
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                
+                socket.emit('video-offer', {
+                    sessionId: sessionId,
+                    offer: offer
+                });
+
+                callBtn.disabled = true;
+                hangupBtn.disabled = false;
+                
+                console.log('통화 시작');
+            } catch (error) {
+                console.error('통화 시작 오류:', error);
+                alert('통화 시작 중 오류가 발생했습니다.');
+            }
+        };
+
+        // Offer 처리
+        async function handleOffer(data) {
+            try {
+                peerConnection = new RTCPeerConnection(configuration);
+                
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+
+                peerConnection.ontrack = (event) => {
+                    remoteVideo.srcObject = event.streams[0];
+                    updateStatus('connectionStatus', '통화 중');
+                };
+
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        socket.emit('ice-candidate', {
+                            sessionId: sessionId,
+                            candidate: event.candidate
+                        });
+                    }
+                };
+
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                
+                socket.emit('video-answer', {
+                    sessionId: sessionId,
+                    answer: answer
+                });
+
+                callBtn.disabled = true;
+                hangupBtn.disabled = false;
+            } catch (error) {
+                console.error('Offer 처리 오류:', error);
+            }
+        }
+
+        // Answer 처리
+        async function handleAnswer(data) {
+            try {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            } catch (error) {
+                console.error('Answer 처리 오류:', error);
+            }
+        }
+
+        // ICE Candidate 처리
+        async function handleIceCandidate(data) {
+            try {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            } catch (error) {
+                console.error('ICE Candidate 처리 오류:', error);
+            }
+        }
+
+        // 통화 종료
+        hangupBtn.onclick = () => {
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            
+            remoteVideo.srcObject = null;
+            updateStatus('connectionStatus', '통화 종료');
+            
+            callBtn.disabled = false;
+            hangupBtn.disabled = true;
+            
+            console.log('통화 종료');
+        };
+
+        // 비디오 토글
+        toggleVideoBtn.onclick = () => {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                videoTrack.enabled = !videoTrack.enabled;
+                toggleVideoBtn.textContent = videoTrack.enabled ? '비디오 끄기' : '비디오 켜기';
+                updateStatus('cameraStatus', videoTrack.enabled ? '켜짐' : '꺼짐');
+            }
+        };
+
+        // 오디오 토글
+        toggleAudioBtn.onclick = () => {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                audioTrack.enabled = !audioTrack.enabled;
+                toggleAudioBtn.textContent = audioTrack.enabled ? '오디오 끄기' : '오디오 켜기';
+                updateStatus('micStatus', audioTrack.enabled ? '켜짐' : '꺼짐');
+            }
+        };
+
+        // 페이지 종료 시 정리
+        window.onbeforeunload = () => {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            if (peerConnection) {
+                peerConnection.close();
+            }
+            if (socket) {
+                socket.disconnect();
+            }
+        };
+    </script>
+</body>
+</html>

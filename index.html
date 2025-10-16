@@ -4,7 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마인드버디 - 심리상담 플랫폼</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f1f5f9;
+            --accent: #10b981;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,21 +30,23 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: var(--text-primary);
+            background: var(--white);
         }
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            color: white;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
             padding: 1rem 0;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
         }
 
         .nav-container {
@@ -39,9 +59,9 @@
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
             text-decoration: none;
         }
 
@@ -52,51 +72,77 @@
         }
 
         .nav-menu a {
-            color: white;
+            color: var(--text-secondary);
             text-decoration: none;
-            transition: opacity 0.3s;
+            font-weight: 500;
+            transition: color 0.2s;
         }
 
         .nav-menu a:hover {
-            opacity: 0.8;
+            color: var(--primary);
         }
 
         .auth-buttons {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .btn {
-            padding: 0.5rem 1.5rem;
+            padding: 0.625rem 1.5rem;
             border: none;
-            border-radius: 25px;
+            border-radius: 0.5rem;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.2s;
             font-weight: 500;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-outline {
             background: transparent;
-            color: white;
-            border: 2px solid white;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--gray-50);
+            color: var(--text-primary);
         }
 
         .btn-primary {
-            background: #fbbf24;
-            color: #1e3a8a;
+            background: var(--primary);
+            color: var(--white);
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 0.75rem;
         }
 
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            color: white;
-            padding: 120px 0 80px;
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+            padding: 140px 0 100px;
             text-align: center;
         }
 
@@ -108,14 +154,19 @@
 
         .hero h1 {
             font-size: 3.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.1;
         }
 
         .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .hero-buttons {
@@ -125,15 +176,10 @@
             flex-wrap: wrap;
         }
 
-        .btn-large {
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-        }
-
         /* Features Section */
         .features {
-            padding: 80px 0;
-            background: #f8f9fa;
+            padding: 100px 0;
+            background: var(--white);
         }
 
         .container {
@@ -145,57 +191,71 @@
         .section-title {
             text-align: center;
             font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: #333;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 2rem;
         }
 
         .feature-card {
-            background: white;
+            background: var(--white);
             padding: 2rem;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            border-radius: 1rem;
+            text-align: left;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
         }
 
         .feature-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 2rem;
-            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--white);
         }
 
         .feature-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #333;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 600;
         }
 
         .feature-card p {
-            color: #666;
+            color: var(--text-secondary);
             line-height: 1.6;
         }
 
         /* Counselor Selection Styles */
         .counselor-selection {
-            padding: 80px 0;
-            background: white;
+            padding: 100px 0;
+            background: var(--gray-50);
         }
 
         .quick-filters {
@@ -206,71 +266,81 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .filter-tab {
-            padding: 0.8rem 1.5rem;
-            border: 2px solid #e1e5e9;
-            background: white;
-            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--border);
+            background: var(--white);
+            border-radius: 2rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             font-weight: 500;
+            font-size: 0.875rem;
         }
 
-        .filter-tab.active, .filter-tab:hover {
-            background: #fbbf24;
-            color: #1e3a8a;
-            border-color: #fbbf24;
+        .filter-tab.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .filter-tab:hover:not(.active) {
+            background: var(--gray-100);
+            border-color: var(--primary);
         }
 
         .counselors-preview {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1.5rem;
         }
 
         .counselor-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
         }
 
         .counselor-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .counselor-header {
             display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
+            align-items: flex-start;
+            margin-bottom: 1rem;
         }
 
         .counselor-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            width: 60px;
+            height: 60px;
+            border-radius: 0.75rem;
+            background: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 2rem;
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 600;
             margin-right: 1rem;
+            flex-shrink: 0;
         }
 
         .counselor-info h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 0.5rem;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            font-weight: 600;
         }
 
         .counselor-credentials {
-            color: #666;
-            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
             margin-bottom: 0.5rem;
         }
 
@@ -281,12 +351,13 @@
         }
 
         .stars {
-            color: #ffc107;
+            color: #f59e0b;
+            font-size: 0.875rem;
         }
 
         .rating-text {
-            color: #666;
-            font-size: 0.9rem;
+            color: var(--text-light);
+            font-size: 0.875rem;
         }
 
         .counselor-specialties {
@@ -295,20 +366,21 @@
 
         .specialty-badge {
             display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background: #dbeafe;
-            color: #1e3a8a;
-            border-radius: 15px;
-            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--gray-100);
+            color: var(--text-secondary);
+            border-radius: 1rem;
+            font-size: 0.75rem;
             margin-right: 0.5rem;
             margin-bottom: 0.5rem;
+            font-weight: 500;
         }
 
         .counselor-description {
-            color: #666;
-            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
             line-height: 1.5;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .counselor-details {
@@ -317,8 +389,8 @@
             gap: 1rem;
             margin-bottom: 1.5rem;
             padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
+            background: var(--gray-50);
+            border-radius: 0.5rem;
         }
 
         .detail-item {
@@ -326,39 +398,41 @@
         }
 
         .detail-label {
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 0.3rem;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.05em;
         }
 
         .detail-value {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
+            font-size: 0.875rem;
         }
 
         .counselor-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
+        .counselor-actions .btn {
+            flex: 1;
+            justify-content: center;
         }
 
         /* How it works */
         .how-it-works {
-            padding: 80px 0;
-            background: #f8f9fa;
+            padding: 100px 0;
+            background: var(--white);
         }
 
         .steps {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
-            margin-top: 3rem;
+            margin-top: 4rem;
         }
 
         .step {
@@ -367,34 +441,65 @@
         }
 
         .step-number {
-            width: 60px;
-            height: 60px;
-            background: #fbbf24;
-            color: #1e3a8a;
-            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            color: var(--white);
+            border-radius: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 0 auto 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0 auto 1.5rem;
         }
 
         .step h3 {
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-            color: #333;
+            font-size: 1.125rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 600;
         }
 
         .step p {
-            color: #666;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 0;
+            background: var(--primary);
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            color: var(--white);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-section .btn {
+            background: var(--white);
+            color: var(--primary);
+        }
+
+        .cta-section .btn:hover {
+            background: var(--gray-100);
         }
 
         /* Footer */
         .footer {
-            background: #333;
-            color: white;
-            padding: 40px 0 20px;
+            background: var(--text-primary);
+            color: var(--white);
+            padding: 60px 0 30px;
             text-align: center;
         }
 
@@ -406,19 +511,21 @@
 
         .footer-brand {
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: 700;
             margin-bottom: 1rem;
+            color: var(--white);
         }
 
         .footer-info {
             margin-bottom: 2rem;
-            color: #ccc;
+            color: var(--text-light);
         }
 
         .footer-bottom {
-            border-top: 1px solid #555;
+            border-top: 1px solid #374151;
             padding-top: 20px;
-            color: #999;
+            color: var(--text-light);
+            font-size: 0.875rem;
         }
 
         /* Responsive */
@@ -452,6 +559,14 @@
             .filter-tabs {
                 justify-content: flex-start;
             }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -465,7 +580,7 @@
                     <li><a href="#features">서비스 소개</a></li>
                     <li><a href="#counselors">상담사 찾기</a></li>
                     <li><a href="#how-it-works">이용방법</a></li>
-                    <li><a href="#contact">문의하기</a></li>
+                    <li><a href="contact.html">문의하기</a></li>
                 </ul>
             </nav>
             <div class="auth-buttons">
@@ -482,7 +597,7 @@
             <p>전문 심리상담사와 안전하고 편안한 환경에서<br>당신만의 맞춤형 상담을 받아보세요</p>
             <div class="hero-buttons">
                 <a href="signup.html" class="btn btn-primary btn-large">상담 시작하기</a>
-                <a href="counselor-register.html" class="btn btn-outline btn-large">상담사 되기</a>
+                <a href="counselor-register.html" class="btn btn-secondary btn-large">상담사 되기</a>
             </div>
         </div>
     </section>
@@ -491,6 +606,7 @@
     <section class="features" id="features">
         <div class="container">
             <h2 class="section-title">왜 마인드버디를 선택해야 할까요?</h2>
+            <p class="section-subtitle">전문적이고 안전한 심리상담 서비스로 마음의 건강을 지켜드립니다</p>
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">🛡️</div>
@@ -498,7 +614,7 @@
                     <p>철저한 개인정보 보호와 익명성 보장으로 안심하고 상담받을 수 있습니다.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">👨‍⚕️</div>
+                    <div class="feature-icon">👨⚕️</div>
                     <h3>검증된 전문 상담사</h3>
                     <p>자격을 갖춘 전문 심리상담사들이 체계적이고 전문적인 상담을 제공합니다.</p>
                 </div>
@@ -530,7 +646,7 @@
     <section class="counselor-selection" id="counselors">
         <div class="container">
             <h2 class="section-title">상담사 선택</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 3rem;">나에게 맞는 전문 상담사를 찾아보세요</p>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 3rem;">나에게 맞는 전문 상담사를 찾아보세요</p>
             
             <!-- Quick Filters -->
             <div class="quick-filters">
@@ -578,7 +694,7 @@
                     </div>
                     <div class="counselor-actions">
                         <a href="booking.html" class="btn btn-primary">상담 예약</a>
-                        <a href="#" class="btn btn-secondary">프로필 보기</a>
+                        <a href="#" class="btn btn-outline">프로필 보기</a>
                     </div>
                 </div>
 
@@ -614,7 +730,7 @@
                     </div>
                     <div class="counselor-actions">
                         <a href="booking.html" class="btn btn-primary">상담 예약</a>
-                        <a href="#" class="btn btn-secondary">프로필 보기</a>
+                        <a href="#" class="btn btn-outline">프로필 보기</a>
                     </div>
                 </div>
 
@@ -650,7 +766,7 @@
                     </div>
                     <div class="counselor-actions">
                         <a href="booking.html" class="btn btn-primary">상담 예약</a>
-                        <a href="#" class="btn btn-secondary">프로필 보기</a>
+                        <a href="#" class="btn btn-outline">프로필 보기</a>
                     </div>
                 </div>
             </div>
@@ -690,6 +806,15 @@
         </div>
     </section>
 
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>지금 바로 시작해보세요</h2>
+            <p>전문 상담사와 함께 마음의 건강을 회복하는 첫 걸음을 내딛어보세요</p>
+            <a href="signup.html" class="btn btn-large">무료 상담 신청하기</a>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
@@ -703,5 +828,29 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        // Filter tabs functionality
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

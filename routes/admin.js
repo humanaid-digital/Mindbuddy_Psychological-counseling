@@ -226,4 +226,61 @@ router.put('/counselors/:id/reject', [auth, adminAuth], async (req, res) => {
   }
 });
 
+// @route   GET /api/admin/stats
+// @desc    관리자 통계
+// @access  Private (Admin)
+router.get('/stats', [auth, adminAuth], async (req, res) => {
+  try {
+    const Payment = require('../models/Payment');
+    
+    const totalUsers = await User.countDocuments({ role: 'client' });
+    const totalCounselors = await Counselor.countDocuments({ status: 'approved' });
+    const totalSessions = await Booking.countDocuments();
+    
+    const payments = await Payment.find({ status: 'completed' });
+    const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
+
+    res.json({
+      success: true,
+      data: {
+        totalUsers,
+        totalCounselors,
+        totalSessions,
+        totalRevenue
+      }
+    });
+  } catch (error) {
+    console.error('통계 조회 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '통계 조회 중 오류가 발생했습니다'
+    });
+  }
+});
+
+// @route   GET /api/admin/payments/recent
+// @desc    최근 결제 내역
+// @access  Private (Admin)
+router.get('/payments/recent', [auth, adminAuth], async (req, res) => {
+  try {
+    const Payment = require('../models/Payment');
+    
+    const payments = await Payment.find()
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    res.json({
+      success: true,
+      data: payments
+    });
+  } catch (error) {
+    console.error('결제 내역 조회 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '결제 내역 조회 중 오류가 발생했습니다'
+    });
+  }
+});
+
 module.exports = router;

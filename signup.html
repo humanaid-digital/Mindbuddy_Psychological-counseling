@@ -4,7 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입 - 마인드버디</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f1f5f9;
+            --accent: #10b981;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,105 +30,110 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: var(--text-primary);
+            background: var(--gray-50);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 1rem;
         }
 
         .signup-container {
-            max-width: 900px;
-            margin: 2rem;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
             overflow: hidden;
         }
 
         .signup-header {
             text-align: center;
-            padding: 3rem 2rem 2rem;
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            padding: 2rem 2rem 1.5rem;
+            background: var(--white);
         }
 
         .logo {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #1e3a8a;
-            margin-bottom: 1rem;
-        }
-
-        .signup-header h1 {
-            font-size: 2rem;
-            color: #333;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
             margin-bottom: 0.5rem;
         }
 
+        .signup-header h1 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
         .signup-header p {
-            color: #666;
-            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
         }
 
         .selection-content {
-            padding: 3rem 2rem;
+            padding: 0 2rem 2rem;
         }
 
         .user-types {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2rem;
+            gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .user-type-card {
-            background: #f8f9fa;
-            border: 3px solid #e1e5e9;
-            border-radius: 15px;
-            padding: 2.5rem 2rem;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem 1.5rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             position: relative;
         }
 
         .user-type-card:hover {
-            border-color: #fbbf24;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(251, 191, 36, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .user-type-card.selected {
-            border-color: #fbbf24;
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
         }
 
         .user-type-icon {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            width: 64px;
+            height: 64px;
+            border-radius: 1rem;
+            background: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 1.5rem;
-            font-size: 3rem;
-            color: white;
+            font-size: 2rem;
+            color: var(--white);
         }
 
         .user-type-card h3 {
-            font-size: 1.5rem;
-            color: #333;
-            margin-bottom: 1rem;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
         }
 
         .user-type-card p {
-            color: #666;
-            line-height: 1.6;
+            color: var(--text-secondary);
+            line-height: 1.5;
             margin-bottom: 1.5rem;
+            font-size: 0.875rem;
         }
 
         .features-list {
@@ -119,57 +142,62 @@
         }
 
         .features-list li {
-            color: #555;
+            color: var(--text-secondary);
             margin-bottom: 0.5rem;
             position: relative;
             padding-left: 1.5rem;
+            font-size: 0.875rem;
         }
 
         .features-list li:before {
             content: "✓";
             position: absolute;
             left: 0;
-            color: #28a745;
-            font-weight: bold;
+            color: var(--accent);
+            font-weight: 600;
         }
 
         .continue-section {
             text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid #e1e5e9;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
         }
 
         .btn {
-            padding: 1rem 2rem;
+            padding: 0.75rem 2rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 0.875rem;
             font-weight: 500;
-            transition: all 0.3s;
+            transition: all 0.2s;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             margin: 0 0.5rem;
         }
 
         .btn-primary {
-            background: #fbbf24;
-            color: #1e3a8a;
+            background: var(--primary);
+            color: var(--white);
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(251, 191, 36, 0.4);
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
         }
 
         .btn-secondary {
-            background: #6c757d;
-            color: white;
+            background: var(--white);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
+            background: var(--gray-50);
+            color: var(--text-primary);
         }
 
         .btn:disabled {
@@ -180,37 +208,42 @@
 
         .back-link {
             position: absolute;
-            top: 2rem;
-            left: 2rem;
-            color: white;
+            top: 1.5rem;
+            left: 1.5rem;
+            color: var(--text-secondary);
             text-decoration: none;
-            font-size: 1.1rem;
-            transition: opacity 0.3s;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s;
         }
 
         .back-link:hover {
-            opacity: 0.8;
+            color: var(--primary);
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
             .user-types {
                 grid-template-columns: 1fr;
             }
             
             .signup-container {
-                margin: 1rem;
+                margin: 0;
             }
             
             .signup-header {
-                padding: 2rem 1rem 1rem;
+                padding: 1.5rem 1.5rem 1rem;
             }
             
             .selection-content {
-                padding: 2rem 1rem;
+                padding: 0 1.5rem 1.5rem;
             }
             
             .user-type-card {
-                padding: 2rem 1rem;
+                padding: 1.5rem 1rem;
             }
             
             .back-link {
@@ -218,7 +251,12 @@
                 display: block;
                 text-align: center;
                 margin-bottom: 1rem;
-                color: #1e3a8a;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
             }
         }
     </style>
@@ -236,7 +274,7 @@
         <div class="selection-content">
             <div class="user-types">
                 <div class="user-type-card" data-type="client">
-                    <div class="user-type-icon">🧑‍💼</div>
+                    <div class="user-type-icon">👤</div>
                     <h3>상담받고 싶어요</h3>
                     <p>전문 상담사와 함께 마음의 건강을 관리하고 싶은 분</p>
                     <ul class="features-list">

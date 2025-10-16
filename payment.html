@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 - 마인드버디</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #10b981;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--gray-50);
+        }
+
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .payment-card {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .booking-info {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .payment-methods {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .payment-method {
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .payment-method:hover {
+            border-color: var(--primary);
+        }
+
+        .payment-method.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+        }
+
+        .payment-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gray-100);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .payment-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .payment-info p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .total-section {
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin: 1.5rem 0;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .total-row.final {
+            padding-top: 0.75rem;
+            border-top: 2px solid var(--border);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .agreement {
+            margin: 1.5rem 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .payment-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">마인드버디</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div id="message-container"></div>
+
+        <div class="payment-card">
+            <h2 class="section-title">예약 정보</h2>
+            <div class="booking-info">
+                <div class="info-row">
+                    <span class="info-label">상담사</span>
+                    <span class="info-value">김상담 상담사</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">날짜</span>
+                    <span class="info-value" id="booking-date">2024.10.15</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">시간</span>
+                    <span class="info-value" id="booking-time">15:00 - 15:50</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">상담 방식</span>
+                    <span class="info-value" id="booking-method">화상상담</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-card">
+            <h2 class="section-title">결제 수단</h2>
+            <div class="payment-methods">
+                <div class="payment-method selected" data-method="card">
+                    <div class="payment-icon">💳</div>
+                    <div class="payment-info">
+                        <h4>신용/체크카드</h4>
+                        <p>모든 카드사 사용 가능</p>
+                    </div>
+                </div>
+                <div class="payment-method" data-method="transfer">
+                    <div class="payment-icon">🏦</div>
+                    <div class="payment-info">
+                        <h4>계좌이체</h4>
+                        <p>실시간 계좌이체</p>
+                    </div>
+                </div>
+                <div class="payment-method" data-method="kakao">
+                    <div class="payment-icon">💬</div>
+                    <div class="payment-info">
+                        <h4>카카오페이</h4>
+                        <p>간편 결제</p>
+                    </div>
+                </div>
+                <div class="payment-method" data-method="toss">
+                    <div class="payment-icon">💙</div>
+                    <div class="payment-info">
+                        <h4>토스페이</h4>
+                        <p>간편 결제</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="total-section">
+                <div class="total-row">
+                    <span>상담료</span>
+                    <span id="base-price">80,000원</span>
+                </div>
+                <div class="total-row">
+                    <span>할인</span>
+                    <span id="discount">0원</span>
+                </div>
+                <div class="total-row final">
+                    <span>총 결제 금액</span>
+                    <span id="total-price">80,000원</span>
+                </div>
+            </div>
+
+            <div class="agreement">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agree-all">
+                    <label for="agree-all">전체 동의</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agree-terms" class="agree-item">
+                    <label for="agree-terms">서비스 이용약관 동의 (필수)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agree-privacy" class="agree-item">
+                    <label for="agree-privacy">개인정보 처리방침 동의 (필수)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agree-payment" class="agree-item">
+                    <label for="agree-payment">결제 진행 동의 (필수)</label>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="payment-btn" disabled>80,000원 결제하기</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedMethod = 'card';
+
+        // 결제 수단 선택
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', function() {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedMethod = this.dataset.method;
+            });
+        });
+
+        // 전체 동의
+        document.getElementById('agree-all').addEventListener('change', function() {
+            const checked = this.checked;
+            document.querySelectorAll('.agree-item').forEach(item => {
+                item.checked = checked;
+            });
+            updatePaymentButton();
+        });
+
+        // 개별 동의
+        document.querySelectorAll('.agree-item').forEach(item => {
+            item.addEventListener('change', function() {
+                const allChecked = Array.from(document.querySelectorAll('.agree-item')).every(i => i.checked);
+                document.getElementById('agree-all').checked = allChecked;
+                updatePaymentButton();
+            });
+        });
+
+        function updatePaymentButton() {
+            const allAgreed = Array.from(document.querySelectorAll('.agree-item')).every(i => i.checked);
+            document.getElementById('payment-btn').disabled = !allAgreed;
+        }
+
+        function showMessage(message, type = 'success') {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="${type}-message message">${message}</div>`;
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
+
+        // 결제 처리
+        document.getElementById('payment-btn').addEventListener('click', async function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = '결제 처리 중...';
+
+            try {
+                const paymentData = {
+                    counselorId: '임시ID',
+                    date: document.getElementById('booking-date').textContent,
+                    time: document.getElementById('booking-time').textContent,
+                    method: document.getElementById('booking-method').textContent,
+                    paymentMethod: selectedMethod,
+                    amount: 80000
+                };
+
+                const response = await fetch('/api/payments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(paymentData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showMessage('결제가 완료되었습니다! 예약이 확정되었습니다.', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/client-dashboard';
+                    }, 2000);
+                } else {
+                    showMessage(data.message || '결제에 실패했습니다.', 'error');
+                    btn.disabled = false;
+                    btn.textContent = '80,000원 결제하기';
+                }
+            } catch (error) {
+                console.error('결제 오류:', error);
+                showMessage('결제 처리 중 오류가 발생했습니다.', 'error');
+                btn.disabled = false;
+                btn.textContent = '80,000원 결제하기';
+            }
+        });
+    </script>
+</body>
+</html>

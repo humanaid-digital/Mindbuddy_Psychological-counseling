@@ -70,6 +70,8 @@ app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/sessions', require('./routes/sessions'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/contact', require('./routes/contact'));
+app.use('/api/payments', require('./routes/payments'));
 
 // HTML 페이지 라우트 설정
 const htmlRoutes = [
@@ -84,7 +86,10 @@ const htmlRoutes = [
   { path: '/counselor-dashboard', file: 'counselor-dashboard.html' },
   { path: '/session', file: 'session.html' },
   { path: '/admin', file: 'admin.html' },
-  { path: '/test-login', file: 'test-login.html' }
+  { path: '/test-login', file: 'test-login.html' },
+  { path: '/contact', file: 'contact.html' },
+  { path: '/payment', file: 'payment.html' },
+  { path: '/video-test', file: 'video-test.html' }
 ];
 
 // HTML 라우트 자동 등록
