@@ -101,3 +101,9 @@ Thumbs.db
 # Backup files
 *.bak
 *.backup
+
+# MongoDB binaries (for testing)
+mongodb-binaries/
+
+# Test results
+test-results/
