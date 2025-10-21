@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Prometheus - 메트릭 수집
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mindbuddy-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/configs/alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring
+
+  # Grafana - 시각화 대시보드
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mindbuddy-grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/dashboards:/etc/grafana/provisioning/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123!
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+      - monitoring
+
+  # AlertManager - 알림 관리
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: mindbuddy-alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/configs/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    networks:
+      - monitoring
+
+  # Node Exporter - 시스템 메트릭
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: mindbuddy-node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - monitoring
+
+  # MongoDB Exporter - MongoDB 메트릭
+  mongodb-exporter:
+    image: percona/mongodb_exporter:latest
+    container_name: mindbuddy-mongodb-exporter
+    ports:
+      - "9216:9216"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+    networks:
+      - monitoring
+    depends_on:
+      - mongodb
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  monitoring:
+    driver: bridge

@@ -1,0 +1,37 @@
+# Prometheus 설정 파일
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # MindBuddy 애플리케이션 메트릭
+  - job_name: 'mindbuddy-app'
+    static_configs:
+      - targets: ['localhost:5000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # Node.js 애플리케이션 메트릭
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['localhost:9100']
+
+  # MongoDB 메트릭
+  - job_name: 'mongodb-exporter'
+    static_configs:
+      - targets: ['localhost:9216']
+
+  # Nginx 메트릭 (리버스 프록시)
+  - job_name: 'nginx-exporter'
+    static_configs:
+      - targets: ['localhost:9113']
