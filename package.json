@@ -14,6 +14,7 @@
     "lint:report": "eslint . --ext .js --format json --output-file eslint-report.json",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "build": "echo 'No build step required for this Node.js application'",
     "db:init": "node scripts/init-database.js",
     "db:migrate": "node scripts/migrate.js",
     "logs:clear": "rm -rf logs/*.log"

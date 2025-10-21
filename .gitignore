@@ -13,6 +13,7 @@ yarn-error.log*
 
 # Logs
 logs/
+logs/*.log
 *.log
 
 # Runtime data
