@@ -80,7 +80,7 @@ const sanitizeInput = (req, res, next) => {
   // 보안 강화된 문자열 정화
   const sanitizeString = (str) => {
     if (typeof str !== 'string') {return str;}
-    
+
     // 길이 제한 (DoS 방지)
     if (str.length > 10000) {
       throw new Error('Input too long');
@@ -173,7 +173,7 @@ const preventInjection = (req, res, next) => {
 
   // 모든 입력 데이터 검사
   const inputSources = [req.body, req.query, req.params];
-  
+
   for (const source of inputSources) {
     if (source && (checkSQLInjection(source) || checkNoSQLInjection(source))) {
       return res.status(400).json({

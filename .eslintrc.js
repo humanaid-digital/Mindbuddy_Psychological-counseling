@@ -22,6 +22,7 @@ module.exports = {
     'no-undef': 'error',
     'no-unreachable': 'error',
     'no-dupe-keys': 'error',
+    'no-control-regex': 'off', // 보안 검증을 위한 제어 문자 정규식 허용
 
     // 경고 레벨 규칙
     'prefer-const': 'warn',

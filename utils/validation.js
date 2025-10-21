@@ -17,7 +17,7 @@ const isSecureURL = (url) => {
   // 기본 URL 형식 검증
   try {
     const urlObj = new URL(url);
-    
+
     // 허용된 프로토콜만 허용
     const allowedProtocols = ['http:', 'https:'];
     if (!allowedProtocols.includes(urlObj.protocol)) {
@@ -115,7 +115,7 @@ const isSecureEmail = (email) => {
 
   // 추가 보안 검증
   const [localPart, domain] = email.split('@');
-  
+
   // 로컬 파트 검증
   if (localPart.length > 64) {
     return false;
@@ -131,8 +131,8 @@ const isSecureEmail = (email) => {
     /<script/i,
     /javascript:/i,
     /on\w+=/i,
-    /\x00-\x1f/,
-    /\x7f-\x9f/
+    /[\x00-\x1f]/,
+    /[\x7f-\x9f]/
   ];
 
   for (const pattern of dangerousPatterns) {
@@ -158,7 +158,7 @@ const isSecurePhone = (phone) => {
   }
 
   // 허용된 문자만 포함 (숫자, 하이픈, 괄호, 공백, 플러스)
-  const phonePattern = /^[0-9\-\(\)\s\+\.]+$/;
+  const phonePattern = /^[0-9\-()s+.]+$/;
   if (!phonePattern.test(phone)) {
     return false;
   }
@@ -226,8 +226,8 @@ const isSecureFilename = (filename) => {
     /[<>:"|?*]/,      // 파일시스템 예약 문자
     /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i, // Windows 예약어
     /^\./,            // 숨김 파일
-    /\x00-\x1f/,      // 제어 문자
-    /\x7f-\x9f/       // 확장 제어 문자
+    /[\x00-\x1f]/,      // 제어 문자
+    /[\x7f-\x9f]/       // 확장 제어 문자
   ];
 
   for (const pattern of dangerousPatterns) {
@@ -263,9 +263,9 @@ const hasSQLInjection = (input) => {
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,
     /(\b(OR|AND)\s+\d+\s*=\s*\d+)/gi,
     /('|(\\')|(;)|(\\;)|(\|)|(\*)|(%)|(\+)|(\\+))/gi,
-    /((\%3D)|(=))[^\n]*((\%27)|(\')|(\-\-)|(\%3B)|(;))/gi,
-    /((\%27)|(\'))\s*((\%6F)|o|(\%4F))((\%72)|r|(\%52))/gi,
-    /((\%27)|(\'))union/gi
+    /((%3D)|(=))[^\n]*((%27)|(')|(--)|(%3B)|(;))/gi,
+    /((%27)|(')).*((%6F)|o|(%4F))((%72)|r|(%52))/gi,
+    /((%27)|(')).union/gi
   ];
 
   for (const pattern of sqlPatterns) {

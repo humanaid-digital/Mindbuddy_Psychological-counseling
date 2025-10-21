@@ -88,94 +88,94 @@ scrape_configs:
    */
   createGrafanaDashboard() {
     const dashboardConfig = {
-      "dashboard": {
-        "id": null,
-        "title": "MindBuddy Performance Dashboard",
-        "tags": ["mindbuddy", "performance", "monitoring"],
-        "timezone": "Asia/Seoul",
-        "panels": [
+      'dashboard': {
+        'id': null,
+        'title': 'MindBuddy Performance Dashboard',
+        'tags': ['mindbuddy', 'performance', 'monitoring'],
+        'timezone': 'Asia/Seoul',
+        'panels': [
           {
-            "id": 1,
-            "title": "응답 시간",
-            "type": "graph",
-            "targets": [
+            'id': 1,
+            'title': '응답 시간',
+            'type': 'graph',
+            'targets': [
               {
-                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
-                "legendFormat": "95th percentile"
+                'expr': 'histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))',
+                'legendFormat': '95th percentile'
               },
               {
-                "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))",
-                "legendFormat": "50th percentile"
+                'expr': 'histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))',
+                'legendFormat': '50th percentile'
               }
             ],
-            "yAxes": [
+            'yAxes': [
               {
-                "label": "시간 (초)",
-                "min": 0
+                'label': '시간 (초)',
+                'min': 0
               }
             ]
           },
           {
-            "id": 2,
-            "title": "초당 요청 수 (RPS)",
-            "type": "graph",
-            "targets": [
+            'id': 2,
+            'title': '초당 요청 수 (RPS)',
+            'type': 'graph',
+            'targets': [
               {
-                "expr": "rate(http_requests_total[5m])",
-                "legendFormat": "{{method}} {{route}}"
+                'expr': 'rate(http_requests_total[5m])',
+                'legendFormat': '{{method}} {{route}}'
               }
             ]
           },
           {
-            "id": 3,
-            "title": "에러율",
-            "type": "graph",
-            "targets": [
+            'id': 3,
+            'title': '에러율',
+            'type': 'graph',
+            'targets': [
               {
-                "expr": "rate(http_requests_total{status=~\"4..|5..\"}[5m]) / rate(http_requests_total[5m]) * 100",
-                "legendFormat": "에러율 (%)"
+                'expr': 'rate(http_requests_total{status=~"4..|5.."}[5m]) / rate(http_requests_total[5m]) * 100',
+                'legendFormat': '에러율 (%)'
               }
             ]
           },
           {
-            "id": 4,
-            "title": "메모리 사용량",
-            "type": "graph",
-            "targets": [
+            'id': 4,
+            'title': '메모리 사용량',
+            'type': 'graph',
+            'targets': [
               {
-                "expr": "process_resident_memory_bytes / 1024 / 1024",
-                "legendFormat": "메모리 사용량 (MB)"
+                'expr': 'process_resident_memory_bytes / 1024 / 1024',
+                'legendFormat': '메모리 사용량 (MB)'
               }
             ]
           },
           {
-            "id": 5,
-            "title": "CPU 사용률",
-            "type": "graph",
-            "targets": [
+            'id': 5,
+            'title': 'CPU 사용률',
+            'type': 'graph',
+            'targets': [
               {
-                "expr": "rate(process_cpu_seconds_total[5m]) * 100",
-                "legendFormat": "CPU 사용률 (%)"
+                'expr': 'rate(process_cpu_seconds_total[5m]) * 100',
+                'legendFormat': 'CPU 사용률 (%)'
               }
             ]
           },
           {
-            "id": 6,
-            "title": "활성 연결 수",
-            "type": "singlestat",
-            "targets": [
+            'id': 6,
+            'title': '활성 연결 수',
+            'type': 'singlestat',
+            'targets': [
               {
-                "expr": "nodejs_active_handles_total",
-                "legendFormat": "활성 핸들"
+                'expr': 'nodejs_active_handles_total',
+                'legendFormat': '활성 핸들'
               }
             ]
           }
         ],
-        "time": {
-          "from": "now-1h",
-          "to": "now"
+        'time': {
+          'from': 'now-1h',
+          'to': 'now'
         },
-        "refresh": "5s"
+        'refresh': '5s'
       }
     };
 

@@ -55,9 +55,9 @@ class PerformanceTester {
         res.on('end', () => {
           const endTime = performance.now();
           const responseTime = endTime - startTime;
-          
+
           this.concurrentRequests--;
-          
+
           resolve({
             statusCode: res.statusCode,
             responseTime,
@@ -96,7 +96,7 @@ class PerformanceTester {
       try {
         const result = await this.makeRequest(path, method, data, headers);
         results.push(result);
-        
+
         if (i % 10 === 0) {
           process.stdout.write(`\r⏳ Progress: ${i + 1}/${iterations} (${Math.round((i + 1) / iterations * 100)}%)`);
         }
@@ -143,7 +143,7 @@ class PerformanceTester {
 
     this.results.push(testResult);
     this.printTestResult(testResult);
-    
+
     return testResult;
   }
 
@@ -162,7 +162,7 @@ class PerformanceTester {
     const batches = [];
     for (let i = 0; i < totalRequests; i += concurrency) {
       const batchSize = Math.min(concurrency, totalRequests - i);
-      const batch = Array(batchSize).fill().map(() => 
+      const batch = Array(batchSize).fill().map(() =>
         this.makeRequest(path, method, data, headers)
           .catch(error => ({ error }))
       );
@@ -172,7 +172,7 @@ class PerformanceTester {
     // 배치별로 실행
     for (let i = 0; i < batches.length; i++) {
       const batchResults = await Promise.all(batches[i]);
-      
+
       batchResults.forEach(result => {
         if (result.error) {
           errors.push(result.error);
@@ -216,7 +216,7 @@ class PerformanceTester {
 
     this.results.push(testResult);
     this.printConcurrentTestResult(testResult);
-    
+
     return testResult;
   }
 
@@ -239,17 +239,17 @@ class PerformanceTester {
     console.log(`\n\n📈 Results for ${result.name}:`);
     console.log(`✅ Success Rate: ${result.successRate.toFixed(2)}% (${result.successCount}/${result.iterations})`);
     console.log(`⚡ Requests/sec: ${result.requestsPerSecond.toFixed(2)}`);
-    console.log(`⏱️  Response Times:`);
+    console.log('⏱️  Response Times:');
     console.log(`   Average: ${result.avgResponseTime.toFixed(2)}ms`);
     console.log(`   Min: ${result.minResponseTime.toFixed(2)}ms`);
     console.log(`   Max: ${result.maxResponseTime.toFixed(2)}ms`);
-    console.log(`📊 Percentiles:`);
+    console.log('📊 Percentiles:');
     console.log(`   50th: ${result.percentiles.p50.toFixed(2)}ms`);
     console.log(`   90th: ${result.percentiles.p90.toFixed(2)}ms`);
     console.log(`   95th: ${result.percentiles.p95.toFixed(2)}ms`);
     console.log(`   99th: ${result.percentiles.p99.toFixed(2)}ms`);
-    console.log(`🔢 Status Codes:`, result.statusCodes);
-    
+    console.log('🔢 Status Codes:', result.statusCodes);
+
     if (result.errors.length > 0) {
       console.log(`❌ Errors (${result.errors.length}):`, result.errors.slice(0, 5));
     }
@@ -263,12 +263,12 @@ class PerformanceTester {
     console.log(`🔄 Concurrency: ${result.concurrency}, Max Concurrent: ${result.maxConcurrentRequests}`);
     console.log(`✅ Success Rate: ${result.successRate.toFixed(2)}% (${result.successCount}/${result.totalRequests})`);
     console.log(`⚡ Requests/sec: ${result.requestsPerSecond.toFixed(2)}`);
-    console.log(`⏱️  Response Times:`);
+    console.log('⏱️  Response Times:');
     console.log(`   Average: ${result.avgResponseTime.toFixed(2)}ms`);
     console.log(`   Min: ${result.minResponseTime.toFixed(2)}ms`);
     console.log(`   Max: ${result.maxResponseTime.toFixed(2)}ms`);
-    console.log(`🔢 Status Codes:`, result.statusCodes);
-    
+    console.log('🔢 Status Codes:', result.statusCodes);
+
     if (result.errors.length > 0) {
       console.log(`❌ Errors (${result.errors.length}):`, result.errors.slice(0, 5));
     }
@@ -369,7 +369,7 @@ class PerformanceTester {
   saveResults(filename = 'performance-test-results.json') {
     const fs = require('fs');
     const path = require('path');
-    
+
     const resultsDir = path.join(__dirname, '..', 'test-results');
     if (!fs.existsSync(resultsDir)) {
       fs.mkdirSync(resultsDir, { recursive: true });
@@ -396,7 +396,7 @@ class PerformanceTester {
 if (require.main === module) {
   const baseUrl = process.argv[2] || 'http://localhost:5000';
   const tester = new PerformanceTester(baseUrl);
-  
+
   tester.runAllTests()
     .then(() => {
       tester.saveResults();
