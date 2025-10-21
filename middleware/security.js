@@ -1,5 +1,6 @@
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const { hasSQLInjection, hasNoSQLInjection, isSecureText } = require('../utils/validation');
 
 /**
  * 보안 미들웨어 설정
@@ -74,13 +75,26 @@ const helmetConfig = helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }
 });
 
-// 입력 데이터 검증 및 정화
+// 강화된 입력 데이터 검증 및 정화
 const sanitizeInput = (req, res, next) => {
-  // XSS 방지를 위한 기본적인 HTML 태그 제거
+  // 보안 강화된 문자열 정화
   const sanitizeString = (str) => {
     if (typeof str !== 'string') {return str;}
+    
+    // 길이 제한 (DoS 방지)
+    if (str.length > 10000) {
+      throw new Error('Input too long');
+    }
+
+    // 보안 검증
+    if (!isSecureText(str, 10000)) {
+      throw new Error('Invalid input detected');
+    }
+
     return str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
       .replace(/<[^>]*>/g, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+=/gi, '')
       .trim();
   };
 
@@ -97,69 +111,77 @@ const sanitizeInput = (req, res, next) => {
     const sanitized = {};
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        // 키 이름도 검증
+        if (typeof key === 'string' && !isSecureText(key, 100)) {
+          throw new Error('Invalid key detected');
+        }
         sanitized[key] = sanitizeObject(obj[key]);
       }
     }
     return sanitized;
   };
 
-  // 요청 본문 정화
-  if (req.body) {
-    req.body = sanitizeObject(req.body);
-  }
+  try {
+    // 요청 본문 정화
+    if (req.body) {
+      req.body = sanitizeObject(req.body);
+    }
 
-  // 쿼리 파라미터 정화
-  if (req.query) {
-    req.query = sanitizeObject(req.query);
-  }
+    // 쿼리 파라미터 정화
+    if (req.query) {
+      req.query = sanitizeObject(req.query);
+    }
 
-  next();
+    // URL 파라미터 정화
+    if (req.params) {
+      req.params = sanitizeObject(req.params);
+    }
+
+    next();
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: '잘못된 입력입니다.',
+      code: 'INVALID_INPUT'
+    });
+  }
 };
 
-// SQL Injection 방지 (NoSQL Injection 포함)
+// 강화된 Injection 방지
 const preventInjection = (req, res, next) => {
-  const checkInjection = (obj) => {
-    if (obj === null || typeof obj !== 'object') {
-      if (typeof obj === 'string') {
-        // 기본적인 NoSQL injection 패턴 검사
-        const injectionPatterns = [
-          /\$where/i,
-          /\$ne/i,
-          /\$gt/i,
-          /\$lt/i,
-          /\$regex/i,
-          /\$or/i,
-          /\$and/i,
-          /javascript:/i,
-          /eval\(/i,
-          /function\(/i
-        ];
-
-        return injectionPatterns.some(pattern => pattern.test(obj));
-      }
-      return false;
+  // SQL Injection 검사
+  const checkSQLInjection = (data) => {
+    if (typeof data === 'string') {
+      return hasSQLInjection(data);
     }
-
-    if (Array.isArray(obj)) {
-      return obj.some(checkInjection);
-    }
-
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        if (checkInjection(key) || checkInjection(obj[key])) {
-          return true;
+    if (typeof data === 'object' && data !== null) {
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          if (checkSQLInjection(key) || checkSQLInjection(data[key])) {
+            return true;
+          }
         }
       }
     }
     return false;
   };
 
-  if (checkInjection(req.body) || checkInjection(req.query) || checkInjection(req.params)) {
-    return res.status(400).json({
-      success: false,
-      message: '잘못된 요청입니다.',
-      code: 'INVALID_INPUT'
-    });
+  // NoSQL Injection 검사
+  const checkNoSQLInjection = (data) => {
+    return hasNoSQLInjection(data);
+  };
+
+  // 모든 입력 데이터 검사
+  const inputSources = [req.body, req.query, req.params];
+  
+  for (const source of inputSources) {
+    if (source && (checkSQLInjection(source) || checkNoSQLInjection(source))) {
+      return res.status(400).json({
+        success: false,
+        message: '보안 위험이 감지된 요청입니다.',
+        code: 'SECURITY_THREAT_DETECTED'
+      });
+    }
   }
 
   next();

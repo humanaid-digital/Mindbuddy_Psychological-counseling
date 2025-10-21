@@ -28,8 +28,16 @@ RUN addgroup -g 1001 -S nodejs && \
 # 의존성 복사
 COPY --from=dependencies --chown=nodejs:nodejs /app/node_modules ./node_modules
 
-# 애플리케이션 파일 복사
-COPY --chown=nodejs:nodejs . .
+# 애플리케이션 파일 복사 (새로운 구조 반영)
+COPY --chown=nodejs:nodejs server.js ./
+COPY --chown=nodejs:nodejs config/ ./config/
+COPY --chown=nodejs:nodejs middleware/ ./middleware/
+COPY --chown=nodejs:nodejs models/ ./models/
+COPY --chown=nodejs:nodejs routes/ ./routes/
+COPY --chown=nodejs:nodejs utils/ ./utils/
+COPY --chown=nodejs:nodejs views/ ./views/
+COPY --chown=nodejs:nodejs public/ ./public/
+COPY --chown=nodejs:nodejs scripts/ ./scripts/
 
 # 필요한 디렉토리 생성
 RUN mkdir -p logs uploads && \

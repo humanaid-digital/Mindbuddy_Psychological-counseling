@@ -9,6 +9,7 @@
     "test": "NODE_ENV=test jest",
     "test:watch": "NODE_ENV=test jest --watch",
     "test:coverage": "NODE_ENV=test jest --coverage",
+    "test:performance": "node scripts/performance-test.js",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
     "lint:report": "eslint . --ext .js --format json --output-file eslint-report.json",
@@ -17,7 +18,10 @@
     "build": "echo 'No build step required for this Node.js application'",
     "db:init": "node scripts/init-database.js",
     "db:migrate": "node scripts/migrate.js",
-    "logs:clear": "rm -rf logs/*.log"
+    "logs:clear": "rm -rf logs/*.log",
+    "docker:build": "docker build -t mindbuddy .",
+    "docker:run": "docker run -p 5000:5000 --env-file .env mindbuddy",
+    "docker:compose": "docker-compose up -d"
   },
   "keywords": [
     "counseling",

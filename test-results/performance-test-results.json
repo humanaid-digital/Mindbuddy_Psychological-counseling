@@ -1,0 +1,168 @@
+{
+  "timestamp": "2025-10-21T08:00:27.742Z",
+  "summary": {
+    "totalTests": 7,
+    "totalRequests": 335,
+    "totalSuccessful": 335,
+    "totalErrors": 0
+  },
+  "results": [
+    {
+      "name": "Health Check",
+      "path": "/health",
+      "method": "GET",
+      "iterations": 50,
+      "successCount": 50,
+      "errorCount": 0,
+      "successRate": 100,
+      "totalTime": 170.86950000000002,
+      "avgResponseTime": 3.1503517199999997,
+      "minResponseTime": 0.3802079999999819,
+      "maxResponseTime": 54.602416999999996,
+      "requestsPerSecond": 292.62097682734486,
+      "percentiles": {
+        "p50": 1.3446670000000012,
+        "p90": 7.021834000000013,
+        "p95": 9.50358399999999,
+        "p99": 54.602416999999996
+      },
+      "statusCodes": {
+        "200": 50
+      },
+      "errors": []
+    },
+    {
+      "name": "Static File (Index)",
+      "path": "/",
+      "method": "GET",
+      "iterations": 30,
+      "successCount": 30,
+      "errorCount": 0,
+      "successRate": 100,
+      "totalTime": 85.32608300000001,
+      "avgResponseTime": 2.698513866666666,
+      "minResponseTime": 0.5249579999999696,
+      "maxResponseTime": 13.696374999999989,
+      "requestsPerSecond": 351.59237299103484,
+      "percentiles": {
+        "p50": 1.688583000000051,
+        "p90": 6.2107090000000085,
+        "p95": 9.507958000000002,
+        "p99": 13.696374999999989
+      },
+      "statusCodes": {
+        "200": 30
+      },
+      "errors": []
+    },
+    {
+      "name": "Counselors List",
+      "path": "/api/counselors",
+      "method": "GET",
+      "iterations": 50,
+      "successCount": 50,
+      "errorCount": 0,
+      "successRate": 100,
+      "totalTime": 705.8892089999999,
+      "avgResponseTime": 13.99145574,
+      "minResponseTime": 2.688707999999906,
+      "maxResponseTime": 392.90654099999995,
+      "requestsPerSecond": 70.83264535355718,
+      "percentiles": {
+        "p50": 5.543375000000083,
+        "p90": 11.460124999999948,
+        "p95": 12.340332999999987,
+        "p99": 392.90654099999995
+      },
+      "statusCodes": {
+        "200": 50
+      },
+      "errors": []
+    },
+    {
+      "name": "Auth Me (No Token)",
+      "path": "/api/auth/me",
+      "method": "GET",
+      "iterations": 30,
+      "successCount": 30,
+      "errorCount": 0,
+      "successRate": 100,
+      "totalTime": 17.882333000000017,
+      "avgResponseTime": 0.5512610000000071,
+      "minResponseTime": 0.3324999999999818,
+      "maxResponseTime": 1.3015000000000327,
+      "requestsPerSecond": 1677.6334497294044,
+      "percentiles": {
+        "p50": 0.4825829999999769,
+        "p90": 0.812874999999849,
+        "p95": 1.0603750000000218,
+        "p99": 1.3015000000000327
+      },
+      "statusCodes": {
+        "401": 30
+      },
+      "errors": []
+    },
+    {
+      "name": "Health Check Concurrent (Concurrent)",
+      "path": "/health",
+      "method": "GET",
+      "concurrency": 10,
+      "totalRequests": 50,
+      "successCount": 50,
+      "errorCount": 0,
+      "successRate": 100,
+      "totalTime": 28.424957999999833,
+      "avgResponseTime": 14.625992480000013,
+      "minResponseTime": 5.445750000000089,
+      "maxResponseTime": 25.33699999999999,
+      "requestsPerSecond": 1759.0175507031636,
+      "maxConcurrentRequests": 50,
+      "statusCodes": {
+        "200": 50
+      },
+      "errors": []
+    },
+    {
+      "name": "Counselors Concurrent (Concurrent)",
+      "path": "/api/counselors",
+      "method": "GET",
+      "concurrency": 5,
+      "totalRequests": 25,
+      "successCount": 25,
+      "errorCount": 0,
+      "successRate": 100,
+      "totalTime": 36.26783300000011,
+      "avgResponseTime": 25.982698360000022,
+      "minResponseTime": 8.866833000000042,
+      "maxResponseTime": 35.93900000000008,
+      "requestsPerSecond": 689.3160669400877,
+      "maxConcurrentRequests": 50,
+      "statusCodes": {
+        "200": 20,
+        "429": 5
+      },
+      "errors": []
+    },
+    {
+      "name": "High Load Test (Concurrent)",
+      "path": "/health",
+      "method": "GET",
+      "concurrency": 20,
+      "totalRequests": 100,
+      "successCount": 100,
+      "errorCount": 0,
+      "successRate": 100,
+      "totalTime": 46.91941600000018,
+      "avgResponseTime": 25.544651690000002,
+      "minResponseTime": 5.611791999999923,
+      "maxResponseTime": 44.825458000000026,
+      "requestsPerSecond": 2131.313825389464,
+      "maxConcurrentRequests": 100,
+      "statusCodes": {
+        "200": 100
+      },
+      "errors": []
+    }
+  ]
+}
