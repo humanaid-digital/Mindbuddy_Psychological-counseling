@@ -141,13 +141,10 @@ jobs:
     - name: Build application
       run: npm run build --if-present
 
-    - name: Build Docker images
+    - name: Build Docker image
       run: |
-        if [ -f "Dockerfile.backend" ]; then
-          docker build -f Dockerfile.backend -t mindbuddy-backend:${{ github.sha }} .
-        fi
-        if [ -f "Dockerfile.frontend" ]; then
-          docker build -f Dockerfile.frontend -t mindbuddy-frontend:${{ github.sha }} .
+        if [ -f "Dockerfile" ]; then
+          docker build -t mindbuddy:${{ github.sha }} .
         fi
 
   deploy-staging:

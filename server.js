@@ -95,7 +95,7 @@ const htmlRoutes = [
 // HTML 라우트 자동 등록
 htmlRoutes.forEach(route => {
   app.get(route.path, (req, res) => {
-    res.sendFile(path.join(__dirname, route.file));
+    res.sendFile(path.join(__dirname, 'views', route.file));
   });
 });
 

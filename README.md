@@ -95,8 +95,12 @@ mindbuddy/
 │   └── js/
 │       └── api.js      # 클라이언트 API
 ├── docs/                # 문서
-│   └── database-erd.md # 데이터베이스 ERD
-├── *.html              # HTML 페이지들
+│   ├── database-erd.md # 데이터베이스 ERD
+│   └── project-structure.md # 프로젝트 구조
+├── views/               # HTML 페이지들
+│   ├── index.html      # 메인 페이지
+│   ├── login.html      # 로그인 페이지
+│   └── ...             # 기타 페이지들
 ├── server.js           # 메인 서버 파일
 ├── package.json        # 의존성 관리
 └── README.md           # 프로젝트 문서

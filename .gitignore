@@ -85,4 +85,19 @@ Thumbs.db
 
 # Build
 dist/
-build/logs/*.log
+build/
+
+# System files
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
