@@ -5,6 +5,13 @@ const API_BASE_URL = window.location.origin + '/api';
 class API {
   constructor() {
     this.token = localStorage.getItem('token');
+    this.initAuth();
+    this.initCounselors();
+    this.initBookings();
+    this.initSessions();
+    this.initReviews();
+    this.initUsers();
+    this.initAdmin();
   }
 
   // 기본 fetch 래퍼
@@ -84,19 +91,20 @@ class API {
     localStorage.removeItem('token');
   }
 
-  // 인증 관련 API
-  auth = {
-    // 상담자 회원가입
-    registerClient: (userData) => this.post('/auth/register/client', userData),
-    
-    // 상담사 회원가입
-    registerCounselor: (userData) => this.post('/auth/register/counselor', userData),
-    
-    // 로그인
-    login: (credentials) => this.post('/auth/login', credentials),
-    
-    // 현재 사용자 정보
-    me: () => this.get('/auth/me'),
+  // 인증 관련 API 초기화
+  initAuth() {
+    this.auth = {
+      // 상담자 회원가입
+      registerClient: (userData) => this.post('/auth/register/client', userData),
+      
+      // 상담사 회원가입
+      registerCounselor: (userData) => this.post('/auth/register/counselor', userData),
+      
+      // 로그인
+      login: (credentials) => this.post('/auth/login', credentials),
+      
+      // 현재 사용자 정보
+      me: () => this.get('/auth/me'),
     
     // 로그아웃
     logout: () => this.post('/auth/logout')

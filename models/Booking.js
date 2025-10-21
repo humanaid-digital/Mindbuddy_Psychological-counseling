@@ -143,11 +143,11 @@ bookingSchema.methods.startSession = function() {
 bookingSchema.methods.endSession = function() {
   this.status = 'completed';
   this.sessionEndedAt = new Date();
-  
+
   if (this.sessionStartedAt) {
     this.actualDuration = Math.round((this.sessionEndedAt - this.sessionStartedAt) / (1000 * 60));
   }
-  
+
   return this.save();
 };
 

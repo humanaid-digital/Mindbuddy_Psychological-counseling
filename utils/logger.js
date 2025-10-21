@@ -57,7 +57,7 @@ class Logger {
   requestLogger() {
     return (req, res, next) => {
       const start = Date.now();
-      
+
       res.on('finish', () => {
         const duration = Date.now() - start;
         const logData = {
@@ -68,14 +68,14 @@ class Logger {
           ip: req.ip,
           userAgent: req.get('User-Agent')
         };
-        
+
         if (res.statusCode >= 400) {
           this.error(`HTTP ${req.method} ${req.originalUrl}`, logData);
         } else {
           this.info(`HTTP ${req.method} ${req.originalUrl}`, logData);
         }
       });
-      
+
       next();
     };
   }

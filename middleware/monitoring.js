@@ -87,13 +87,13 @@ const memoryMonitoring = () => {
 
   // 5분마다 메모리 체크
   setInterval(checkMemory, 5 * 60 * 1000);
-  
+
   // 초기 체크
   checkMemory();
 };
 
 // 에러 추적
-const errorTracking = (err, req, res, next) => {
+const errorTracking = (err, req, res, _next) => {
   const errorData = {
     message: err.message,
     stack: err.stack,
@@ -121,8 +121,8 @@ const errorTracking = (err, req, res, next) => {
   if (!res.headersSent) {
     res.status(err.status || 500).json({
       success: false,
-      message: process.env.NODE_ENV === 'production' 
-        ? '서버 오류가 발생했습니다.' 
+      message: process.env.NODE_ENV === 'production'
+        ? '서버 오류가 발생했습니다.'
         : err.message,
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
@@ -146,7 +146,7 @@ const collectMetrics = () => {
 const gracefulShutdown = () => {
   const cleanup = (signal) => {
     logger.info(`Received ${signal}. Starting graceful shutdown...`);
-    
+
     // 진행 중인 요청 완료 대기
     setTimeout(() => {
       logger.info('Graceful shutdown completed');

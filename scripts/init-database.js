@@ -9,7 +9,7 @@ async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mindbuddy', {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
+      useUnifiedTopology: true
     });
     console.log('✅ MongoDB 연결 성공');
   } catch (error) {
@@ -21,7 +21,7 @@ async function connectDB() {
 // 인덱스 생성
 async function createIndexes() {
   const db = mongoose.connection.db;
-  
+
   try {
     console.log('📊 인덱스 생성 중...');
 
@@ -71,7 +71,7 @@ async function createIndexes() {
 async function createSampleData() {
   const User = require('../models/User');
   const Counselor = require('../models/Counselor');
-  
+
   try {
     console.log('📝 샘플 데이터 생성 중...');
 
@@ -183,17 +183,17 @@ async function createSampleData() {
 async function checkDatabaseStatus() {
   const User = require('../models/User');
   const Counselor = require('../models/Counselor');
-  
+
   try {
     console.log('📊 데이터베이스 상태 확인 중...');
-    
+
     const userCount = await User.countDocuments();
     const clientCount = await User.countDocuments({ role: 'client' });
     const counselorUserCount = await User.countDocuments({ role: 'counselor' });
     const adminCount = await User.countDocuments({ role: 'admin' });
     const counselorProfileCount = await Counselor.countDocuments();
     const approvedCounselorCount = await Counselor.countDocuments({ status: 'approved' });
-    
+
     console.log('📈 데이터베이스 통계:');
     console.log(`   총 사용자: ${userCount}명`);
     console.log(`   상담자: ${clientCount}명`);
@@ -201,7 +201,7 @@ async function checkDatabaseStatus() {
     console.log(`   관리자: ${adminCount}명`);
     console.log(`   상담사 프로필: ${counselorProfileCount}개`);
     console.log(`   승인된 상담사: ${approvedCounselorCount}명`);
-    
+
   } catch (error) {
     console.error('❌ 데이터베이스 상태 확인 실패:', error);
   }
@@ -210,12 +210,12 @@ async function checkDatabaseStatus() {
 // 메인 실행 함수
 async function main() {
   console.log('🚀 마인드버디 데이터베이스 초기화 시작');
-  
+
   await connectDB();
   await createIndexes();
   await createSampleData();
   await checkDatabaseStatus();
-  
+
   console.log('✅ 데이터베이스 초기화 완료');
   console.log('');
   console.log('📋 테스트 계정 정보:');
@@ -223,7 +223,7 @@ async function main() {
   console.log('   관리자2: admin2@mindbuddy.com / admin456!');
   console.log('   상담자: client@test.com / test123!');
   console.log('   상담사: counselor@test.com / test123!');
-  
+
   process.exit(0);
 }
 

@@ -2,7 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const Counselor = require('../models/Counselor');
 const Booking = require('../models/Booking');
-const Review = require('../models/Review');
+// const Review = require('../models/Review'); // 사용하지 않음
 const { auth, adminAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -16,17 +16,17 @@ router.get('/dashboard', [auth, adminAuth], async (req, res) => {
     const totalUsers = await User.countDocuments({ role: 'client', isActive: true });
     const totalCounselors = await Counselor.countDocuments({ status: 'approved', isActive: true });
     const totalSessions = await Booking.countDocuments({ status: 'completed' });
-    
+
     // 이번 달 통계
     const currentMonth = new Date();
     currentMonth.setDate(1);
     currentMonth.setHours(0, 0, 0, 0);
-    
+
     const thisMonthUsers = await User.countDocuments({
       role: 'client',
       createdAt: { $gte: currentMonth }
     });
-    
+
     const thisMonthSessions = await Booking.countDocuments({
       status: 'completed',
       createdAt: { $gte: currentMonth }
@@ -37,7 +37,7 @@ router.get('/dashboard', [auth, adminAuth], async (req, res) => {
       status: 'completed',
       createdAt: { $gte: currentMonth }
     });
-    
+
     const thisMonthRevenue = completedBookings.reduce((total, booking) => {
       return total + (booking.fee * 0.15); // 15% 수수료 가정
     }, 0);
@@ -186,7 +186,7 @@ router.put('/counselors/:id/approve', [auth, adminAuth], async (req, res) => {
 router.put('/counselors/:id/reject', [auth, adminAuth], async (req, res) => {
   try {
     const { reason } = req.body;
-    
+
     const counselor = await Counselor.findById(req.params.id);
     if (!counselor) {
       return res.status(404).json({
@@ -232,11 +232,11 @@ router.put('/counselors/:id/reject', [auth, adminAuth], async (req, res) => {
 router.get('/stats', [auth, adminAuth], async (req, res) => {
   try {
     const Payment = require('../models/Payment');
-    
+
     const totalUsers = await User.countDocuments({ role: 'client' });
     const totalCounselors = await Counselor.countDocuments({ status: 'approved' });
     const totalSessions = await Booking.countDocuments();
-    
+
     const payments = await Payment.find({ status: 'completed' });
     const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
 
@@ -264,7 +264,7 @@ router.get('/stats', [auth, adminAuth], async (req, res) => {
 router.get('/payments/recent', [auth, adminAuth], async (req, res) => {
   try {
     const Payment = require('../models/Payment');
-    
+
     const payments = await Payment.find()
       .populate('user', 'name email')
       .sort({ createdAt: -1 })

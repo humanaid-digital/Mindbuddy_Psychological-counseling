@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
     };
 
     // 전체 상태 결정
-    const isHealthy = 
+    const isHealthy =
       healthCheck.checks.database === 'healthy' &&
       (healthCheck.checks.memory.status === 'healthy' || healthCheck.checks.memory.status === 'warning');
 
@@ -76,7 +76,7 @@ router.get('/', async (req, res) => {
   } catch (error) {
     healthCheck.checks.database = 'error';
     healthCheck.message = 'Error';
-    
+
     res.status(503).json({
       success: false,
       ...healthCheck,

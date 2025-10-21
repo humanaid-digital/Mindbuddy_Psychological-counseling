@@ -58,7 +58,7 @@ router.get('/:sessionId', auth, async (req, res) => {
         email: req.userInfo.email,
         role: req.userInfo.role
       };
-      
+
       jitsiConfig = jitsiService.generateMeetingConfig(roomName, userInfo, {
         startWithAudioMuted: req.userInfo.role === 'client',
         startWithVideoMuted: false

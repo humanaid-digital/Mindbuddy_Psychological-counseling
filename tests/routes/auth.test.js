@@ -1,6 +1,6 @@
 const request = require('supertest');
 const express = require('express');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose'); // 사용하지 않음
 const User = require('../../models/User');
 const Counselor = require('../../models/Counselor');
 const authRoutes = require('../../routes/auth');
@@ -126,7 +126,7 @@ describe('Auth Routes', () => {
       // 데이터베이스에 저장되었는지 확인
       const savedUser = await User.findOne({ email: userData.email });
       const savedCounselor = await Counselor.findOne({ user: savedUser._id });
-      
+
       expect(savedUser).toBeTruthy();
       expect(savedCounselor).toBeTruthy();
       expect(savedCounselor.license).toBe(userData.license);
@@ -137,7 +137,7 @@ describe('Auth Routes', () => {
         name: '이상담',
         email: 'counselor@test.com',
         password: 'password123',
-        phone: '010-5678-9012',
+        phone: '010-5678-9012'
         // 필수 상담사 정보 누락
       };
 

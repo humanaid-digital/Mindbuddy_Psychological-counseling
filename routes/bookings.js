@@ -2,7 +2,7 @@ const express = require('express');
 const { body, query, validationResult } = require('express-validator');
 const Booking = require('../models/Booking');
 const Counselor = require('../models/Counselor');
-const User = require('../models/User');
+// const User = require('../models/User'); // 사용하지 않음
 const { auth, clientAuth, counselorAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -50,7 +50,7 @@ router.post('/', [auth, clientAuth], [
     // 시간 유효성 검사
     const bookingDate = new Date(date);
     const now = new Date();
-    
+
     if (bookingDate < now) {
       return res.status(400).json({
         success: false,
@@ -182,8 +182,8 @@ router.get('/', auth, [
     const userRole = req.userInfo.role;
 
     // 필터 조건 구성
-    let filter = {};
-    
+    const filter = {};
+
     if (userRole === 'client') {
       filter.client = req.user.userId;
     } else if (userRole === 'counselor') {
@@ -224,7 +224,7 @@ router.get('/', auth, [
     const bookingsData = bookings.map(booking => ({
       id: booking._id,
       client: userRole === 'counselor' ? {
-        name: booking.client.name,
+        name: booking.client.name
         // 상담사에게는 민감한 정보 제한
       } : {
         name: booking.client.name,
@@ -467,7 +467,7 @@ router.put('/:id/cancel', auth, [
     const bookingDateTime = new Date(booking.date);
     const [hour, minute] = booking.startTime.split(':');
     bookingDateTime.setHours(parseInt(hour), parseInt(minute));
-    
+
     const now = new Date();
     const timeDiff = bookingDateTime.getTime() - now.getTime();
     const hoursDiff = timeDiff / (1000 * 60 * 60);

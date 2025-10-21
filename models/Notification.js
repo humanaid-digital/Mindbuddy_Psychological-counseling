@@ -76,7 +76,7 @@ notificationSchema.statics.getUnreadCount = function(userId) {
 notificationSchema.statics.createAndSend = async function(notificationData) {
   const notification = new this(notificationData);
   await notification.save();
-  
+
   // 실시간 알림 전송 (Socket.IO)
   const io = require('../server').io;
   if (io) {
@@ -88,7 +88,7 @@ notificationSchema.statics.createAndSend = async function(notificationData) {
       createdAt: notification.createdAt
     });
   }
-  
+
   return notification;
 };
 

@@ -82,8 +82,8 @@ const userSchema = new mongoose.Schema({
 
 // 비밀번호 해싱 미들웨어
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
+  if (!this.isModified('password')) {return next();}
+
   try {
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);

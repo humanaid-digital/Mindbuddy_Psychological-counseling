@@ -1,5 +1,5 @@
 const express = require('express');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose'); // 사용하지 않음
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
@@ -111,7 +111,7 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
   logger.info(`서버가 포트 ${PORT}에서 실행 중입니다.`, { port: PORT, env: process.env.NODE_ENV });
-  
+
   // 모니터링 시작
   memoryMonitoring();
   gracefulShutdown();

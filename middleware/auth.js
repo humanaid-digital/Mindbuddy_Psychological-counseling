@@ -6,7 +6,7 @@ const auth = async (req, res, next) => {
   try {
     const authHeader = req.header('Authorization');
     const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    
+
     if (!token) {
       return res.status(401).json({
         success: false,
@@ -17,7 +17,7 @@ const auth = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId).select('-password');
-    
+
     if (!user || !user.isActive) {
       return res.status(401).json({
         success: false,
@@ -30,11 +30,14 @@ const auth = async (req, res, next) => {
     req.userInfo = user;
     next();
   } catch (error) {
-    console.error('인증 오류:', error);
-    
+    // 테스트 환경이 아닐 때만 로그 출력
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('인증 오류:', error);
+    }
+
     let message = '유효하지 않은 토큰입니다.';
     let code = 'INVALID_TOKEN';
-    
+
     if (error.name === 'TokenExpiredError') {
       message = '토큰이 만료되었습니다. 다시 로그인해주세요.';
       code = 'TOKEN_EXPIRED';
@@ -42,7 +45,7 @@ const auth = async (req, res, next) => {
       message = '잘못된 토큰 형식입니다.';
       code = 'MALFORMED_TOKEN';
     }
-    
+
     res.status(401).json({
       success: false,
       message,

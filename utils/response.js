@@ -34,8 +34,8 @@ class ApiResponse {
       timestamp: new Date().toISOString()
     };
 
-    if (code) response.code = code;
-    if (errors) response.errors = errors;
+    if (code) {response.code = code;}
+    if (errors) {response.errors = errors;}
 
     return res.status(statusCode).json(response);
   }

@@ -7,6 +7,11 @@ const helmet = require('helmet');
 
 // Rate limiting 설정
 const createRateLimit = (windowMs, max, message) => {
+  // 테스트 환경에서는 Rate Limiting 비활성화
+  if (process.env.NODE_ENV === 'test') {
+    return (req, res, next) => next();
+  }
+
   return rateLimit({
     windowMs,
     max,
@@ -16,7 +21,7 @@ const createRateLimit = (windowMs, max, message) => {
       code: 'RATE_LIMIT_EXCEEDED'
     },
     standardHeaders: true,
-    legacyHeaders: false,
+    legacyHeaders: false
   });
 };
 
@@ -52,31 +57,31 @@ const passwordResetLimiter = createRateLimit(
 const helmetConfig = helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "wss:", "ws:"],
-      mediaSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      childSrc: ["'self'"],
-      workerSrc: ["'self'"],
-      frameSrc: ["'self'", "https://meet.jit.si"],
-    },
+      defaultSrc: ['\'self\''],
+      styleSrc: ['\'self\'', '\'unsafe-inline\'', 'https://fonts.googleapis.com'],
+      fontSrc: ['\'self\'', 'https://fonts.gstatic.com'],
+      scriptSrc: ['\'self\'', '\'unsafe-inline\''],
+      imgSrc: ['\'self\'', 'data:', 'https:'],
+      connectSrc: ['\'self\'', 'wss:', 'ws:'],
+      mediaSrc: ['\'self\''],
+      objectSrc: ['\'none\''],
+      childSrc: ['\'self\''],
+      workerSrc: ['\'self\''],
+      frameSrc: ['\'self\'', 'https://meet.jit.si']
+    }
   },
   crossOriginEmbedderPolicy: false,
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
 });
 
 // 입력 데이터 검증 및 정화
 const sanitizeInput = (req, res, next) => {
   // XSS 방지를 위한 기본적인 HTML 태그 제거
   const sanitizeString = (str) => {
-    if (typeof str !== 'string') return str;
+    if (typeof str !== 'string') {return str;}
     return str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-              .replace(/<[^>]*>/g, '')
-              .trim();
+      .replace(/<[^>]*>/g, '')
+      .trim();
   };
 
   // 재귀적으로 객체의 모든 문자열 값을 정화
@@ -91,7 +96,7 @@ const sanitizeInput = (req, res, next) => {
 
     const sanitized = {};
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         sanitized[key] = sanitizeObject(obj[key]);
       }
     }
@@ -129,7 +134,7 @@ const preventInjection = (req, res, next) => {
           /eval\(/i,
           /function\(/i
         ];
-        
+
         return injectionPatterns.some(pattern => pattern.test(obj));
       }
       return false;
@@ -140,7 +145,7 @@ const preventInjection = (req, res, next) => {
     }
 
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         if (checkInjection(key) || checkInjection(obj[key])) {
           return true;
         }

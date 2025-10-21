@@ -41,7 +41,7 @@ describe('User Model', () => {
 
     it('should fail to create user without required fields', async () => {
       const user = new User({});
-      
+
       await expect(user.save()).rejects.toThrow();
     });
 
@@ -106,13 +106,13 @@ describe('User Model', () => {
 
     it('should update updatedAt on save', async () => {
       const originalUpdatedAt = user.updatedAt;
-      
+
       // 시간 차이를 위해 잠시 대기
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       user.name = '수정된 이름';
       await user.save();
-      
+
       expect(user.updatedAt.getTime()).toBeGreaterThan(originalUpdatedAt.getTime());
     });
   });

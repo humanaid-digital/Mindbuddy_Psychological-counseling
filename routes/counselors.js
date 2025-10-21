@@ -52,8 +52,8 @@ router.get('/', [
 
     if (minFee || maxFee) {
       filter.fee = {};
-      if (minFee) filter.fee.$gte = parseInt(minFee);
-      if (maxFee) filter.fee.$lte = parseInt(maxFee);
+      if (minFee) {filter.fee.$gte = parseInt(minFee);}
+      if (maxFee) {filter.fee.$lte = parseInt(maxFee);}
     }
 
     if (method) {
@@ -63,30 +63,30 @@ router.get('/', [
     // 정렬 조건 구성
     let sort = {};
     switch (sortBy) {
-      case 'rating':
-        sort = { 'rating.average': -1, 'rating.count': -1 };
-        break;
-      case 'experience':
-        sort = { experience: -1 };
-        break;
-      case 'fee-low':
-        sort = { fee: 1 };
-        break;
-      case 'fee-high':
-        sort = { fee: -1 };
-        break;
-      case 'newest':
-        sort = { createdAt: -1 };
-        break;
-      default:
-        sort = { 'rating.average': -1 };
+    case 'rating':
+      sort = { 'rating.average': -1, 'rating.count': -1 };
+      break;
+    case 'experience':
+      sort = { experience: -1 };
+      break;
+    case 'fee-low':
+      sort = { fee: 1 };
+      break;
+    case 'fee-high':
+      sort = { fee: -1 };
+      break;
+    case 'newest':
+      sort = { createdAt: -1 };
+      break;
+    default:
+      sort = { 'rating.average': -1 };
     }
 
     // 페이징 계산
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     // 상담사 조회
-    let query = Counselor.find(filter)
+    const query = Counselor.find(filter)
       .populate('user', 'name avatar')
       .sort(sort)
       .skip(skip)
@@ -179,9 +179,9 @@ router.get('/:id', async (req, res) => {
       counselor: counselor._id,
       status: 'approved'
     })
-    .populate('client', 'name')
-    .sort({ createdAt: -1 })
-    .limit(5);
+      .populate('client', 'name')
+      .sort({ createdAt: -1 })
+      .limit(5);
 
     const counselorData = {
       id: counselor._id,
@@ -266,7 +266,7 @@ router.get('/:id/availability', [
       data: {
         date: targetDate.toISOString().split('T')[0],
         dayOfWeek,
-        availability,
+        availability
         // bookedSlots: bookedSlots.map(slot => ({
         //   startTime: slot.startTime,
         //   endTime: slot.endTime
@@ -313,11 +313,11 @@ router.put('/profile', [auth, counselorAuth], [
     const { introduction, fee, methods, specialties, availability } = req.body;
 
     // 업데이트할 필드만 수정
-    if (introduction !== undefined) counselor.introduction = introduction;
-    if (fee !== undefined) counselor.fee = fee;
-    if (methods !== undefined) counselor.methods = methods;
-    if (specialties !== undefined) counselor.specialties = specialties;
-    if (availability !== undefined) counselor.availability = availability;
+    if (introduction !== undefined) {counselor.introduction = introduction;}
+    if (fee !== undefined) {counselor.fee = fee;}
+    if (methods !== undefined) {counselor.methods = methods;}
+    if (specialties !== undefined) {counselor.specialties = specialties;}
+    if (availability !== undefined) {counselor.availability = availability;}
 
     await counselor.save();
 

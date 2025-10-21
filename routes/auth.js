@@ -115,7 +115,7 @@ router.post('/register/counselor', registerLimiter, [
       });
     }
 
-    const { 
+    const {
       name, email, password, phone, birthDate,
       license, licenseNumber, university, experience, careerDetails,
       specialties, fee, methods, introduction

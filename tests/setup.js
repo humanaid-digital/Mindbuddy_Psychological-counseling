@@ -8,11 +8,11 @@ beforeAll(async () => {
   // 메모리 내 MongoDB 서버 시작
   mongod = await MongoMemoryServer.create();
   const uri = mongod.getUri();
-  
+
   // Mongoose 연결
   await mongoose.connect(uri, {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useUnifiedTopology: true
   });
 });
 

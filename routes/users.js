@@ -63,13 +63,13 @@ router.put('/profile', auth, [
     const { name, phone, birthDate, concerns, preferredMethod, preferredGender, additionalInfo } = req.body;
 
     // 업데이트할 필드만 수정
-    if (name !== undefined) user.name = name;
-    if (phone !== undefined) user.phone = phone;
-    if (birthDate !== undefined) user.birthDate = birthDate ? new Date(birthDate) : null;
-    if (concerns !== undefined) user.concerns = concerns;
-    if (preferredMethod !== undefined) user.preferredMethod = preferredMethod;
-    if (preferredGender !== undefined) user.preferredGender = preferredGender;
-    if (additionalInfo !== undefined) user.additionalInfo = additionalInfo;
+    if (name !== undefined) {user.name = name;}
+    if (phone !== undefined) {user.phone = phone;}
+    if (birthDate !== undefined) {user.birthDate = birthDate ? new Date(birthDate) : null;}
+    if (concerns !== undefined) {user.concerns = concerns;}
+    if (preferredMethod !== undefined) {user.preferredMethod = preferredMethod;}
+    if (preferredGender !== undefined) {user.preferredGender = preferredGender;}
+    if (additionalInfo !== undefined) {user.additionalInfo = additionalInfo;}
 
     await user.save();
 

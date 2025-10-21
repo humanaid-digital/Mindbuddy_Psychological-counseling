@@ -60,7 +60,7 @@ if (db.users.countDocuments({ email: 'admin@mindbuddy.com' }) === 0) {
     createdAt: new Date(),
     updatedAt: new Date()
   });
-  
+
   print('Admin user created');
 }
 
