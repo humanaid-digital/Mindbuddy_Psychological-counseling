@@ -22,5 +22,6 @@ module.exports = {
   resetMocks: true,
   restoreMocks: true,
   detectOpenHandles: false,
-  maxWorkers: process.env.CI ? 2 : '50%'
+  maxWorkers: process.env.CI ? 2 : '50%',
+  workerIdleMemoryLimit: process.env.CI ? '512MB' : '2GB'
 };
