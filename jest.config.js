@@ -20,5 +20,7 @@ module.exports = {
   forceExit: true,
   clearMocks: true,
   resetMocks: true,
-  restoreMocks: true
+  restoreMocks: true,
+  detectOpenHandles: false,
+  maxWorkers: process.env.CI ? 2 : '50%'
 };
