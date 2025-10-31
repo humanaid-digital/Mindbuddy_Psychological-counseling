@@ -1,131 +1,195 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const os = require('os');
 const router = express.Router();
+const database = require('../config/database');
+const { cache } = require('../utils/cache');
 
-// @route   GET /health
-// @desc    헬스체크 엔드포인트
-// @access  Public
+/**
+ * 기본 헬스 체크
+ */
 router.get('/', async (req, res) => {
-  const healthCheck = {
-    uptime: process.uptime(),
-    message: 'OK',
-    timestamp: new Date().toISOString(),
-    checks: {
-      database: 'unknown',
-      memory: 'unknown',
-      disk: 'unknown'
-    }
-  };
-
   try {
-    // 데이터베이스 연결 상태 확인
-    if (mongoose.connection.readyState === 1) {
-      healthCheck.checks.database = 'healthy';
-    } else {
-      healthCheck.checks.database = 'unhealthy';
+    const healthCheck = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      version: process.env.npm_package_version || '1.0.0',
+      services: {}
+    };
+
+    // PostgreSQL 연결 상태 확인
+    try {
+      if (database.isConnected()) {
+        await database.query('SELECT 1');
+        healthCheck.services.database = { status: 'healthy', type: 'postgresql' };
+      } else {
+        healthCheck.services.database = { status: 'disconnected', type: 'postgresql' };
+      }
+    } catch (error) {
+      healthCheck.services.database = { 
+        status: 'unhealthy', 
+        type: 'postgresql',
+        error: error.message 
+      };
     }
 
-    // 메모리 사용량 확인
-    const memoryUsage = process.memoryUsage();
-    const totalMemory = os.totalmem();
-    const freeMemory = os.freemem();
-    const memoryUsagePercent = ((totalMemory - freeMemory) / totalMemory) * 100;
-
-    healthCheck.checks.memory = {
-      status: memoryUsagePercent < 90 ? 'healthy' : 'warning',
-      usage: {
-        rss: Math.round(memoryUsage.rss / 1024 / 1024) + ' MB',
-        heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024) + ' MB',
-        heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + ' MB',
-        external: Math.round(memoryUsage.external / 1024 / 1024) + ' MB'
-      },
-      system: {
-        total: Math.round(totalMemory / 1024 / 1024 / 1024) + ' GB',
-        free: Math.round(freeMemory / 1024 / 1024 / 1024) + ' GB',
-        usagePercent: Math.round(memoryUsagePercent) + '%'
+    // Redis 연결 상태 확인
+    try {
+      if (cache.isConnected) {
+        // Redis ping 테스트
+        await cache.client.ping();
+        healthCheck.services.redis = { status: 'healthy', type: 'redis' };
+      } else {
+        healthCheck.services.redis = { status: 'disconnected', type: 'redis' };
       }
-    };
-
-    // CPU 정보
-    const cpuUsage = process.cpuUsage();
-    healthCheck.checks.cpu = {
-      user: cpuUsage.user,
-      system: cpuUsage.system,
-      loadAverage: os.loadavg()
-    };
+    } catch (error) {
+      healthCheck.services.redis = { 
+        status: 'unhealthy', 
+        type: 'redis',
+        error: error.message 
+      };
+    }
 
     // 전체 상태 결정
-    const isHealthy =
-      healthCheck.checks.database === 'healthy' &&
-      (healthCheck.checks.memory.status === 'healthy' || healthCheck.checks.memory.status === 'warning');
-
-    if (isHealthy) {
-      res.status(200).json({
-        success: true,
-        ...healthCheck
-      });
-    } else {
-      res.status(503).json({
-        success: false,
-        message: 'Service Unavailable',
-        ...healthCheck
-      });
+    const allServicesHealthy = Object.values(healthCheck.services)
+      .every(service => service.status === 'healthy');
+    
+    if (!allServicesHealthy) {
+      healthCheck.status = 'degraded';
     }
 
-  } catch (error) {
-    healthCheck.checks.database = 'error';
-    healthCheck.message = 'Error';
+    const statusCode = healthCheck.status === 'healthy' ? 200 : 503;
+    res.status(statusCode).json(healthCheck);
 
+  } catch (error) {
     res.status(503).json({
-      success: false,
-      ...healthCheck,
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
       error: error.message
     });
   }
 });
 
-// @route   GET /health/ready
-// @desc    준비 상태 확인 (Kubernetes readiness probe용)
-// @access  Public
-router.get('/ready', async (req, res) => {
+/**
+ * 상세 헬스 체크 (메모리, CPU 등)
+ */
+router.get('/detailed', async (req, res) => {
   try {
-    // 데이터베이스 연결 확인
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({
-        success: false,
-        message: 'Database not ready'
-      });
+    const memUsage = process.memoryUsage();
+    const cpuUsage = process.cpuUsage();
+
+    const detailedHealth = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      version: process.env.npm_package_version || '1.0.0',
+      system: {
+        memory: {
+          rss: Math.round(memUsage.rss / 1024 / 1024) + ' MB',
+          heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024) + ' MB',
+          heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024) + ' MB',
+          external: Math.round(memUsage.external / 1024 / 1024) + ' MB'
+        },
+        cpu: {
+          user: cpuUsage.user,
+          system: cpuUsage.system
+        },
+        platform: process.platform,
+        arch: process.arch,
+        nodeVersion: process.version
+      },
+      services: {}
+    };
+
+    // 서비스 상태 확인 (기본 헬스 체크와 동일)
+    try {
+      if (database.isConnected()) {
+        await database.query('SELECT 1');
+        detailedHealth.services.database = { status: 'healthy', type: 'postgresql' };
+      } else {
+        detailedHealth.services.database = { status: 'disconnected', type: 'postgresql' };
+      }
+    } catch (error) {
+      detailedHealth.services.database = { 
+        status: 'unhealthy', 
+        type: 'postgresql',
+        error: error.message 
+      };
     }
 
-    // 간단한 데이터베이스 쿼리 테스트
-    await mongoose.connection.db.admin().ping();
+    try {
+      if (cache.isConnected) {
+        // Redis ping 테스트
+        await cache.client.ping();
+        detailedHealth.services.redis = { status: 'healthy', type: 'redis' };
+      } else {
+        detailedHealth.services.redis = { status: 'disconnected', type: 'redis' };
+      }
+    } catch (error) {
+      detailedHealth.services.redis = { 
+        status: 'unhealthy', 
+        type: 'redis',
+        error: error.message 
+      };
+    }
 
-    res.status(200).json({
-      success: true,
-      message: 'Ready',
-      timestamp: new Date().toISOString()
-    });
+    const allServicesHealthy = Object.values(detailedHealth.services)
+      .every(service => service.status === 'healthy');
+    
+    if (!allServicesHealthy) {
+      detailedHealth.status = 'degraded';
+    }
+
+    const statusCode = detailedHealth.status === 'healthy' ? 200 : 503;
+    res.status(statusCode).json(detailedHealth);
 
   } catch (error) {
     res.status(503).json({
-      success: false,
-      message: 'Not ready',
-      error: error.message,
-      timestamp: new Date().toISOString()
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error.message
     });
   }
 });
 
-// @route   GET /health/live
-// @desc    생존 상태 확인 (Kubernetes liveness probe용)
-// @access  Public
+/**
+ * 준비 상태 확인 (Kubernetes readiness probe용)
+ */
+router.get('/ready', async (req, res) => {
+  try {
+    // 필수 서비스들이 준비되었는지 확인
+    const isReady = database.isConnected();
+    
+    if (isReady) {
+      res.status(200).json({
+        status: 'ready',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      res.status(503).json({
+        status: 'not ready',
+        timestamp: new Date().toISOString(),
+        reason: 'Database not connected'
+      });
+    }
+  } catch (error) {
+    res.status(503).json({
+      status: 'not ready',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 생존 상태 확인 (Kubernetes liveness probe용)
+ */
 router.get('/live', (req, res) => {
   res.status(200).json({
-    success: true,
-    message: 'Alive',
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString()
+    status: 'alive',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
   });
 });
 

@@ -5,12 +5,24 @@ const path = require('path');
 require('dotenv').config();
 
 // 필수 환경 변수 검증
-const requiredEnvVars = ['JWT_SECRET', 'MONGODB_URI'];
+const requiredEnvVars = ['JWT_SECRET'];
+const optionalEnvVars = ['DATABASE_URL', 'DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'];
+
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
   console.error('❌ 필수 환경 변수가 설정되지 않았습니다:', missingEnvVars.join(', '));
   console.error('📝 .env 파일을 확인하거나 .env.example을 참고하세요.');
+  process.exit(1);
+}
+
+// PostgreSQL 연결 정보 확인
+const hasConnectionString = !!process.env.DATABASE_URL;
+const hasIndividualVars = !!(process.env.DB_HOST && process.env.DB_NAME && process.env.DB_USER);
+
+if (!hasConnectionString && !hasIndividualVars) {
+  console.error('❌ PostgreSQL 연결 정보가 설정되지 않았습니다.');
+  console.error('📝 DATABASE_URL 또는 DB_HOST, DB_NAME, DB_USER, DB_PASSWORD를 설정하세요.');
   process.exit(1);
 }
 
@@ -76,9 +88,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// MongoDB 연결 초기화
+// PostgreSQL 연결 초기화
 database.connect().catch(err => {
-  logger.error('데이터베이스 연결 실패로 서버를 종료합니다.', { error: err.message });
+  logger.error('PostgreSQL 연결 실패로 서버를 종료합니다.', { error: err.message });
   process.exit(1);
 });
 

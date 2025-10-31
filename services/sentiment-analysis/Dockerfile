@@ -1,4 +1,3 @@
-# Backend Dockerfile
 FROM node:18-alpine
 
 # Install dumb-init for proper signal handling
@@ -6,7 +5,7 @@ RUN apk add --no-cache dumb-init
 
 # Create app user
 RUN addgroup -g 1001 -S nodejs
-RUN adduser -S mindbuddy -u 1001
+RUN adduser -S sentiment -u 1001
 
 WORKDIR /app
 
@@ -16,23 +15,19 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci --only=production && npm cache clean --force
 
-# Copy source code (exclude node_modules, .git, etc.)
-COPY --chown=mindbuddy:nodejs . .
-
-# Create necessary directories with proper permissions
-RUN mkdir -p logs uploads && \
-    chown -R mindbuddy:nodejs logs uploads
+# Copy source code
+COPY --chown=sentiment:nodejs . .
 
 # Switch to non-root user
-USER mindbuddy
+USER sentiment
 
 # Expose port
-EXPOSE 5000
+EXPOSE 3007
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:5000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+  CMD node -e "require('http').get('http://localhost:3007/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 # Start the application with dumb-init
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

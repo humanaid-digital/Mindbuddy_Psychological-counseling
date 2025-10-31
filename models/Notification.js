@@ -1,82 +1,117 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const database = require('../config/database');
 
-const notificationSchema = new mongoose.Schema({
-  recipient: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+const Notification = database.getConnection().define('Notification', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
+  },
+  recipientId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    },
+    onDelete: 'CASCADE'
+  },
+  senderId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    references: {
+      model: 'users',
+      key: 'id'
+    },
+    onDelete: 'SET NULL'
   },
   type: {
-    type: String,
-    enum: [
-      'booking_confirmed',
-      'booking_cancelled',
-      'session_starting',
-      'session_ended',
-      'review_received',
-      'counselor_approved',
-      'counselor_rejected',
-      'payment_completed',
-      'reminder'
-    ],
-    required: true
+    type: DataTypes.ENUM(
+      'booking_confirmed', 'booking_cancelled', 'booking_reminder',
+      'session_started', 'session_ended', 'message_received',
+      'review_received', 'payment_completed', 'system_announcement'
+    ),
+    allowNull: false
   },
   title: {
-    type: String,
-    required: [true, '알림 제목을 입력해주세요'],
-    maxlength: [100, '제목은 100자를 초과할 수 없습니다']
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      len: { args: [1, 100], msg: '제목은 100자를 초과할 수 없습니다' }
+    }
   },
   message: {
-    type: String,
-    required: [true, '알림 내용을 입력해주세요'],
-    maxlength: [500, '내용은 500자를 초과할 수 없습니다']
+    type: DataTypes.TEXT,
+    allowNull: false,
+    validate: {
+      len: { args: [1, 500], msg: '메시지는 500자를 초과할 수 없습니다' }
+    }
   },
   data: {
-    type: mongoose.Schema.Types.Mixed
+    type: DataTypes.JSONB,
+    allowNull: true
   },
   isRead: {
-    type: Boolean,
-    default: false
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
   readAt: {
-    type: Date
+    type: DataTypes.DATE,
+    allowNull: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  channels: {
+    type: DataTypes.ARRAY(DataTypes.ENUM('web', 'email', 'sms', 'push')),
+    defaultValue: ['web']
+  },
+  sentAt: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  priority: {
+    type: DataTypes.ENUM('low', 'normal', 'high', 'urgent'),
+    defaultValue: 'normal'
   }
+}, {
+  tableName: 'notifications',
+  timestamps: true,
+  indexes: [
+    { fields: ['recipientId', 'isRead', 'createdAt'] },
+    { fields: ['type', 'createdAt'] },
+    { fields: ['priority', 'isRead'] }
+  ]
 });
 
-<<<<<<< HEAD
-// 알림 읽음 처리
-notificationSchema.methods.markAsRead = function() {
+// 인스턴스 메서드
+Notification.prototype.markAsRead = function() {
   this.isRead = true;
   this.readAt = new Date();
   return this.save();
 };
 
-// 알림 전송 처리
-notificationSchema.methods.markAsSent = function(channels = ['web']) {
+Notification.prototype.markAsSent = function(channels = ['web']) {
   this.channels = channels;
   this.sentAt = new Date();
   return this.save();
 };
 
-// 정적 메서드: 사용자별 읽지 않은 알림 수
-notificationSchema.statics.getUnreadCount = function(userId) {
-  return this.countDocuments({ user: userId, isRead: false });
+// 정적 메서드
+Notification.getUnreadCount = function(userId) {
+  return this.count({ 
+    where: { 
+      recipientId: userId, 
+      isRead: false 
+    } 
+  });
 };
 
-// 정적 메서드: 알림 생성 및 전송
-notificationSchema.statics.createAndSend = async function(notificationData) {
-  const notification = new this(notificationData);
-  await notification.save();
+Notification.createAndSend = async function(notificationData) {
+  const notification = await this.create(notificationData);
 
   // 실시간 알림 전송 (Socket.IO)
   const io = require('../server').io;
   if (io) {
-    io.to(`user_${notification.user}`).emit('notification', {
-      id: notification._id,
+    io.to(`user_${notification.recipientId}`).emit('notification', {
+      id: notification.id,
       title: notification.title,
       message: notification.message,
       type: notification.type,
@@ -87,10 +122,4 @@ notificationSchema.statics.createAndSend = async function(notificationData) {
   return notification;
 };
 
-
-// 인덱스 설정
-notificationSchema.index({ recipient: 1, createdAt: -1 });
-notificationSchema.index({ isRead: 1 });
-notificationSchema.index({ type: 1 });
-
-module.exports = mongoose.model('Notification', notificationSchema);
+module.exports = Notification;

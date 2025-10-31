@@ -1,136 +1,167 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const { v4: uuidv4 } = require('uuid');
+const database = require('../config/database');
 
-const bookingSchema = new mongoose.Schema({
-  client: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+const Booking = database.getConnection().define('Booking', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
   },
-  counselor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Counselor',
-    required: true
+  clientId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    },
+    onDelete: 'CASCADE'
   },
-  // 예약 정보
+  counselorId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'counselors',
+      key: 'id'
+    },
+    onDelete: 'CASCADE'
+  },
   date: {
-    type: Date,
-    required: [true, '상담 날짜를 선택해주세요']
+    type: DataTypes.DATEONLY,
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: '상담 날짜를 선택해주세요' }
+    }
   },
   startTime: {
-    type: String,
-    required: [true, '시작 시간을 선택해주세요'],
-    match: [/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, '올바른 시간 형식이 아닙니다 (HH:MM)']
+    type: DataTypes.TIME,
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: '시작 시간을 선택해주세요' }
+    }
   },
   endTime: {
-    type: String,
-    required: [true, '종료 시간을 선택해주세요'],
-    match: [/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, '올바른 시간 형식이 아닙니다 (HH:MM)']
+    type: DataTypes.TIME,
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: '종료 시간을 선택해주세요' }
+    }
   },
   duration: {
-    type: Number,
-    default: 50, // 분 단위
-    min: [30, '상담 시간은 최소 30분 이상이어야 합니다'],
-    max: [120, '상담 시간은 최대 120분을 초과할 수 없습니다']
+    type: DataTypes.INTEGER,
+    defaultValue: 50,
+    validate: {
+      min: { args: 30, msg: '상담 시간은 최소 30분 이상이어야 합니다' },
+      max: { args: 120, msg: '상담 시간은 최대 120분을 초과할 수 없습니다' }
+    }
   },
-  // 상담 방식
   method: {
-    type: String,
-    required: [true, '상담 방식을 선택해주세요'],
-    enum: ['video', 'voice', 'chat']
+    type: DataTypes.ENUM('video', 'voice', 'chat'),
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: '상담 방식을 선택해주세요' }
+    }
   },
-  // 상담 주제
   topic: {
-    type: String,
-    enum: ['depression', 'anxiety', 'trauma', 'relationship', 'family', 'work', 'other']
+    type: DataTypes.ENUM('depression', 'anxiety', 'trauma', 'relationship', 'family', 'work', 'other'),
+    allowNull: true
   },
   notes: {
-    type: String,
-    maxlength: [1000, '메모는 1000자를 초과할 수 없습니다']
+    type: DataTypes.TEXT,
+    validate: {
+      len: { args: [0, 1000], msg: '메모는 1000자를 초과할 수 없습니다' }
+    }
   },
-  // 결제 정보
   fee: {
-    type: Number,
-    required: true,
-    min: [0, '상담료는 0원 이상이어야 합니다']
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    validate: {
+      min: { args: 0, msg: '상담료는 0원 이상이어야 합니다' }
+    }
   },
   paymentStatus: {
-    type: String,
-    enum: ['pending', 'paid', 'failed', 'refunded'],
-    default: 'pending'
+    type: DataTypes.ENUM('pending', 'paid', 'failed', 'refunded'),
+    defaultValue: 'pending'
   },
   paymentId: {
-    type: String
+    type: DataTypes.STRING,
+    allowNull: true
   },
   paidAt: {
-    type: Date
+    type: DataTypes.DATE,
+    allowNull: true
   },
-  // 예약 상태
   status: {
-    type: String,
-    enum: ['pending', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show'],
-    default: 'pending'
+    type: DataTypes.ENUM('pending', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show'),
+    defaultValue: 'pending'
   },
-  // 취소 정보
   cancelledBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    type: DataTypes.UUID,
+    allowNull: true,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
   },
   cancelledAt: {
-    type: Date
+    type: DataTypes.DATE,
+    allowNull: true
   },
   cancellationReason: {
-    type: String,
-    maxlength: [500, '취소 사유는 500자를 초과할 수 없습니다']
+    type: DataTypes.TEXT,
+    validate: {
+      len: { args: [0, 500], msg: '취소 사유는 500자를 초과할 수 없습니다' }
+    }
   },
-  // 세션 정보
   sessionId: {
-    type: String,
-    unique: true,
-    sparse: true
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
   },
   sessionStartedAt: {
-    type: Date
+    type: DataTypes.DATE,
+    allowNull: true
   },
   sessionEndedAt: {
-    type: Date
+    type: DataTypes.DATE,
+    allowNull: true
   },
   actualDuration: {
-    type: Number // 실제 상담 시간 (분)
+    type: DataTypes.INTEGER,
+    allowNull: true
   },
-  // 리마인더
   reminderSent: {
-    type: Boolean,
-    default: false
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
   reminderSentAt: {
-    type: Date
-  },
-  // 생성/수정 시간
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+    type: DataTypes.DATE,
+    allowNull: true
   }
+}, {
+  tableName: 'bookings',
+  timestamps: true,
+  indexes: [
+    { fields: ['clientId'] },
+    { fields: ['counselorId'] },
+    { fields: ['date'] },
+    { fields: ['status'] },
+    { fields: ['paymentStatus'] },
+    { fields: ['sessionId'] },
+    { fields: ['counselorId', 'date', 'status'] },
+    { fields: ['clientId', 'createdAt'] },
+    { fields: ['date', 'startTime', 'endTime'] },
+    { fields: ['status', 'paymentStatus'] }
+  ]
 });
 
-// 업데이트 시간 자동 갱신
-bookingSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
-// 세션 ID 생성
-bookingSchema.methods.generateSessionId = function() {
-  const { v4: uuidv4 } = require('uuid');
+// 인스턴스 메서드
+Booking.prototype.generateSessionId = function() {
   this.sessionId = uuidv4();
   return this.sessionId;
 };
 
-// 상담 시작
-bookingSchema.methods.startSession = function() {
+Booking.prototype.startSession = function() {
   this.status = 'in-progress';
   this.sessionStartedAt = new Date();
   if (!this.sessionId) {
@@ -139,8 +170,7 @@ bookingSchema.methods.startSession = function() {
   return this.save();
 };
 
-// 상담 종료
-bookingSchema.methods.endSession = function() {
+Booking.prototype.endSession = function() {
   this.status = 'completed';
   this.sessionEndedAt = new Date();
 
@@ -151,8 +181,7 @@ bookingSchema.methods.endSession = function() {
   return this.save();
 };
 
-// 예약 취소
-bookingSchema.methods.cancel = function(userId, reason) {
+Booking.prototype.cancel = function(userId, reason) {
   this.status = 'cancelled';
   this.cancelledBy = userId;
   this.cancelledAt = new Date();
@@ -160,13 +189,4 @@ bookingSchema.methods.cancel = function(userId, reason) {
   return this.save();
 };
 
-// 인덱스 설정
-bookingSchema.index({ client: 1 });
-bookingSchema.index({ counselor: 1 });
-bookingSchema.index({ date: 1 });
-bookingSchema.index({ status: 1 });
-bookingSchema.index({ paymentStatus: 1 });
-bookingSchema.index({ sessionId: 1 });
-bookingSchema.index({ createdAt: -1 });
-
-module.exports = mongoose.model('Booking', bookingSchema);
+module.exports = Booking;

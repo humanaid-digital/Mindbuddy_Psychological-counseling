@@ -31,44 +31,6 @@ services:
       - ./uploads:/app/uploads
       - ./logs:/app/logs
 
-  # AI 서비스들 (독립적으로 유지)
-  ai-matching-service:
-    build:
-      context: ./services/ai-matching
-      dockerfile: Dockerfile
-    container_name: mindbuddy-ai-matching
-    restart: unless-stopped
-    ports:
-      - "3006:3006"
-    environment:
-      - NODE_ENV=production
-      - PORT=3006
-      - REDIS_URL=redis://redis:6379
-      - FRONTEND_URL=http://localhost:3000
-    depends_on:
-      - redis
-    networks:
-      - mindbuddy-network
-
-  # 감정 분석 서비스 (독립적으로 유지)
-  sentiment-service:
-    build:
-      context: ./services/sentiment-analysis
-      dockerfile: Dockerfile
-    container_name: mindbuddy-sentiment
-    restart: unless-stopped
-    ports:
-      - "3007:3007"
-    environment:
-      - NODE_ENV=production
-      - PORT=3007
-      - REDIS_URL=redis://redis:6379
-      - FRONTEND_URL=http://localhost:3000
-    depends_on:
-      - redis
-    networks:
-      - mindbuddy-network
-
   # React 프론트엔드
   frontend:
     build:
@@ -86,7 +48,7 @@ services:
     networks:
       - mindbuddy-network
 
-  # 데이터베이스 서비스 (PostgreSQL)
+  # PostgreSQL 데이터베이스
   postgres:
     image: postgres:15-alpine
     container_name: mindbuddy-postgres
@@ -125,7 +87,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Nginx 로드 밸런서 (선택사항)
+  # Nginx 리버스 프록시 (선택사항)
   nginx:
     image: nginx:alpine
     container_name: mindbuddy-nginx
@@ -141,47 +103,10 @@ services:
       - frontend
     networks:
       - mindbuddy-network
-    profiles:
-      - production
-
-  # Elasticsearch (로그 분석) - 선택사항
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
-    container_name: mindbuddy-elasticsearch
-    restart: unless-stopped
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-      - mindbuddy-network
-    profiles:
-      - monitoring
-
-  # Kibana (로그 시각화) - 선택사항
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.8.0
-    container_name: mindbuddy-kibana
-    restart: unless-stopped
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
-    networks:
-      - mindbuddy-network
-    profiles:
-      - monitoring
 
 volumes:
   postgres_data:
   redis_data:
-  elasticsearch_data:
 
 networks:
   mindbuddy-network:

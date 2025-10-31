@@ -1,11 +1,9 @@
 version: '3.8'
 
 services:
-  # 메인 애플리케이션 (모놀리식)
+  # 메인 애플리케이션 (Docker Hub 이미지 사용)
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
+    image: ${DOCKER_HUB_USERNAME:-mindbuddy}/mindbuddy-app:${TAG:-latest}
     container_name: mindbuddy-app
     restart: unless-stopped
     ports:
@@ -28,14 +26,12 @@ services:
     networks:
       - mindbuddy-network
     volumes:
-      - ./uploads:/app/uploads
-      - ./logs:/app/logs
+      - app_uploads:/app/uploads
+      - app_logs:/app/logs
 
-  # AI 서비스들 (독립적으로 유지)
+  # AI 매칭 서비스 (Docker Hub 이미지 사용)
   ai-matching-service:
-    build:
-      context: ./services/ai-matching
-      dockerfile: Dockerfile
+    image: ${DOCKER_HUB_USERNAME:-mindbuddy}/mindbuddy-ai-matching:${TAG:-latest}
     container_name: mindbuddy-ai-matching
     restart: unless-stopped
     ports:
@@ -50,11 +46,9 @@ services:
     networks:
       - mindbuddy-network
 
-  # 감정 분석 서비스 (독립적으로 유지)
+  # 감정 분석 서비스 (Docker Hub 이미지 사용)
   sentiment-service:
-    build:
-      context: ./services/sentiment-analysis
-      dockerfile: Dockerfile
+    image: ${DOCKER_HUB_USERNAME:-mindbuddy}/mindbuddy-sentiment:${TAG:-latest}
     container_name: mindbuddy-sentiment
     restart: unless-stopped
     ports:
@@ -69,11 +63,9 @@ services:
     networks:
       - mindbuddy-network
 
-  # React 프론트엔드
+  # React 프론트엔드 (Docker Hub 이미지 사용)
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ${DOCKER_HUB_USERNAME:-mindbuddy}/mindbuddy-frontend:${TAG:-latest}
     container_name: mindbuddy-frontend
     restart: unless-stopped
     ports:
@@ -86,7 +78,7 @@ services:
     networks:
       - mindbuddy-network
 
-  # 데이터베이스 서비스 (PostgreSQL)
+  # PostgreSQL 데이터베이스
   postgres:
     image: postgres:15-alpine
     container_name: mindbuddy-postgres
@@ -125,7 +117,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Nginx 로드 밸런서 (선택사항)
+  # Nginx 로드 밸런서
   nginx:
     image: nginx:alpine
     container_name: mindbuddy-nginx
@@ -144,44 +136,11 @@ services:
     profiles:
       - production
 
-  # Elasticsearch (로그 분석) - 선택사항
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
-    container_name: mindbuddy-elasticsearch
-    restart: unless-stopped
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-      - mindbuddy-network
-    profiles:
-      - monitoring
-
-  # Kibana (로그 시각화) - 선택사항
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.8.0
-    container_name: mindbuddy-kibana
-    restart: unless-stopped
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
-    networks:
-      - mindbuddy-network
-    profiles:
-      - monitoring
-
 volumes:
   postgres_data:
   redis_data:
-  elasticsearch_data:
+  app_uploads:
+  app_logs:
 
 networks:
   mindbuddy-network:

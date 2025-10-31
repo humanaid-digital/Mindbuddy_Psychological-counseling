@@ -1,55 +1,103 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const database = require('../config/database');
 
-const chatMessageSchema = new mongoose.Schema({
-  session: {
-    type: String,
-    required: true,
-    index: true
+const ChatMessage = database.getConnection().define('ChatMessage', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
   },
-  sender: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  sessionId: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
-  senderRole: {
-    type: String,
-    enum: ['client', 'counselor'],
-    required: true
+  senderId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    },
+    onDelete: 'CASCADE'
+  },
+  receiverId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    },
+    onDelete: 'CASCADE'
   },
   message: {
-    type: String,
-    required: [true, '메시지 내용을 입력해주세요'],
-    maxlength: [1000, '메시지는 1000자를 초과할 수 없습니다']
+    type: DataTypes.TEXT,
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: '메시지 내용을 입력해주세요' },
+      len: { args: [1, 5000], msg: '메시지는 5000자를 초과할 수 없습니다' }
+    }
   },
   messageType: {
-    type: String,
-    enum: ['text', 'image', 'file', 'system'],
-    default: 'text'
+    type: DataTypes.ENUM('text', 'image', 'file', 'system'),
+    defaultValue: 'text'
   },
   fileUrl: {
-    type: String
+    type: DataTypes.STRING,
+    allowNull: true
   },
   fileName: {
-    type: String
+    type: DataTypes.STRING,
+    allowNull: true
   },
   fileSize: {
-    type: Number
+    type: DataTypes.INTEGER,
+    allowNull: true
   },
   isRead: {
-    type: Boolean,
-    default: false
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
   readAt: {
-    type: Date
+    type: DataTypes.DATE,
+    allowNull: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  isEdited: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  editedAt: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  isDeleted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  deletedAt: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
+}, {
+  tableName: 'chat_messages',
+  timestamps: true,
+  indexes: [
+    { fields: ['sessionId', 'createdAt'] },
+    { fields: ['senderId', 'createdAt'] },
+    { fields: ['receiverId', 'isRead'] }
+  ]
 });
 
-// 인덱스 설정
-chatMessageSchema.index({ session: 1, createdAt: -1 });
-chatMessageSchema.index({ sender: 1 });
+// 인스턴스 메서드
+ChatMessage.prototype.markAsRead = function() {
+  this.isRead = true;
+  this.readAt = new Date();
+  return this.save();
+};
 
-module.exports = mongoose.model('ChatMessage', chatMessageSchema);
+ChatMessage.prototype.softDelete = function() {
+  this.isDeleted = true;
+  this.deletedAt = new Date();
+  return this.save();
+};
+
+module.exports = ChatMessage;

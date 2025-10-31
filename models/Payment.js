@@ -1,94 +1,122 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const database = require('../config/database');
 
-const paymentSchema = new mongoose.Schema({
-  booking: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Booking',
-    required: true,
-    unique: true
+const Payment = database.getConnection().define('Payment', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true
   },
-  client: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  bookingId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'bookings',
+      key: 'id'
+    },
+    onDelete: 'CASCADE'
   },
-  counselor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Counselor',
-    required: true
+  userId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    },
+    onDelete: 'CASCADE'
   },
   amount: {
-    type: Number,
-    required: [true, '결제 금액을 입력해주세요'],
-    min: [0, '결제 금액은 0원 이상이어야 합니다']
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+    validate: {
+      min: { args: 0, msg: '결제 금액은 0원 이상이어야 합니다' }
+    }
   },
-  platformFee: {
-    type: Number,
-    default: 0
-  },
-  counselorAmount: {
-    type: Number,
-    required: true
+  currency: {
+    type: DataTypes.STRING(3),
+    defaultValue: 'KRW'
   },
   paymentMethod: {
-    type: String,
-    enum: ['card', 'bank_transfer', 'kakao_pay', 'naver_pay'],
-    required: true
+    type: DataTypes.ENUM('card', 'bank_transfer', 'kakao_pay', 'naver_pay', 'paypal'),
+    allowNull: false
   },
   paymentProvider: {
-    type: String,
-    enum: ['toss', 'iamport', 'kakao', 'naver'],
-    required: true
+    type: DataTypes.STRING,
+    allowNull: true
   },
   transactionId: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: true,
     unique: true
   },
   status: {
-    type: String,
-    enum: ['pending', 'completed', 'failed', 'cancelled', 'refunded'],
-    default: 'pending'
+    type: DataTypes.ENUM('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded'),
+    defaultValue: 'pending'
   },
   paidAt: {
-    type: Date
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  failedAt: {
+    type: DataTypes.DATE,
+    allowNull: true
   },
   refundedAt: {
-    type: Date
+    type: DataTypes.DATE,
+    allowNull: true
   },
   refundAmount: {
-    type: Number,
-    default: 0
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0
   },
   refundReason: {
-    type: String,
-    maxlength: [500, '환불 사유는 500자를 초과할 수 없습니다']
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  failureReason: {
+    type: DataTypes.TEXT,
+    allowNull: true
   },
   metadata: {
-    type: mongoose.Schema.Types.Mixed
+    type: DataTypes.JSONB,
+    allowNull: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  receiptUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
+}, {
+  tableName: 'payments',
+  timestamps: true,
+  indexes: [
+    { fields: ['bookingId', 'status'] },
+    { fields: ['userId', 'createdAt'] },
+    { fields: ['status', 'createdAt'] },
+    { fields: ['transactionId'], unique: true }
+  ]
 });
 
-// 업데이트 시간 자동 갱신
-paymentSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
+// 인스턴스 메서드
+Payment.prototype.markAsPaid = function(transactionId) {
+  this.status = 'completed';
+  this.transactionId = transactionId;
+  this.paidAt = new Date();
+  return this.save();
+};
 
-// 인덱스 설정
-paymentSchema.index({ booking: 1 });
-paymentSchema.index({ client: 1 });
-paymentSchema.index({ counselor: 1 });
-paymentSchema.index({ transactionId: 1 });
-paymentSchema.index({ status: 1 });
-paymentSchema.index({ createdAt: -1 });
+Payment.prototype.markAsFailed = function(reason) {
+  this.status = 'failed';
+  this.failureReason = reason;
+  this.failedAt = new Date();
+  return this.save();
+};
 
-module.exports = mongoose.model('Payment', paymentSchema);
+Payment.prototype.processRefund = function(amount, reason) {
+  this.status = 'refunded';
+  this.refundAmount = amount || this.amount;
+  this.refundReason = reason;
+  this.refundedAt = new Date();
+  return this.save();
+};
+
+module.exports = Payment;

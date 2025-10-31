@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # 테스트용 간단한 구성
+  postgres:
+    image: postgres:15-alpine
+    container_name: mindbuddy-test-postgres
+    environment:
+      - POSTGRES_DB=mindbuddy
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mindbuddy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: mindbuddy-test-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # 간단한 웹 서버 (nginx)
+  web:
+    image: nginx:alpine
+    container_name: mindbuddy-test-web
+    ports:
+      - "8080:80"
+    networks:
+      - test-network
+    volumes:
+      - ./frontend/public:/usr/share/nginx/html:ro
+
+networks:
+  test-network:
+    driver: bridge

@@ -1,62 +1,72 @@
-const mongoose = require('mongoose');
+const { Sequelize } = require('sequelize');
 const logger = require('../utils/logger');
 
 /**
- * MongoDB 연결 설정
+ * PostgreSQL 연결 설정
  */
 class Database {
   constructor() {
-    this.connection = null;
+    this.sequelize = null;
   }
 
   async connect() {
     try {
-      const options = {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        maxPoolSize: 10, // 최대 연결 풀 크기
-        serverSelectionTimeoutMS: 5000, // 서버 선택 타임아웃
-        socketTimeoutMS: 45000 // 소켓 타임아웃
-      };
-
-      this.connection = await mongoose.connect(
-        process.env.MONGODB_URI || 'mongodb://localhost:27017/mindbuddy',
-        options
-      );
-
-      logger.info('MongoDB 연결 성공', {
-        host: this.connection.connection.host,
-        port: this.connection.connection.port,
-        database: this.connection.connection.name
+      // PostgreSQL 연결 설정
+      this.sequelize = new Sequelize(process.env.DATABASE_URL || {
+        database: process.env.DB_NAME || 'mindbuddy',
+        username: process.env.DB_USER || 'postgres',
+        password: process.env.DB_PASSWORD || 'password',
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+        dialect: 'postgres',
+        logging: (msg) => logger.debug(msg),
+        pool: {
+          max: 10,
+          min: 0,
+          acquire: 30000,
+          idle: 10000
+        },
+        dialectOptions: {
+          ssl: process.env.DB_SSL === 'true' ? {
+            require: true,
+            rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false'
+          } : false
+        }
       });
 
-      // 연결 이벤트 리스너 설정
+      // 연결 테스트
+      await this.sequelize.authenticate();
+      
+      logger.info('PostgreSQL 연결 성공', {
+        host: this.sequelize.config.host,
+        port: this.sequelize.config.port,
+        database: this.sequelize.config.database
+      });
+
+      // 모델 동기화 (개발 환경에서만)
+      if (process.env.NODE_ENV === 'development') {
+        await this.sequelize.sync({ alter: true });
+        logger.info('데이터베이스 스키마 동기화 완료');
+      }
+
+      // 이벤트 리스너 설정
       this.setupEventListeners();
 
-      return this.connection;
+      return this.sequelize;
     } catch (error) {
-      logger.error('MongoDB 연결 실패', { error: error.message });
+      logger.error('PostgreSQL 연결 실패', { error: error.message });
       throw error;
     }
   }
 
   setupEventListeners() {
-    const db = mongoose.connection;
-
-    db.on('error', (error) => {
-      logger.error('MongoDB 연결 오류', { error: error.message });
-    });
-
-    db.on('disconnected', () => {
-      logger.warn('MongoDB 연결 해제됨');
-    });
-
-    db.on('reconnected', () => {
-      logger.info('MongoDB 재연결됨');
-    });
-
     // 프로세스 종료 시 연결 정리
     process.on('SIGINT', async () => {
+      await this.disconnect();
+      process.exit(0);
+    });
+
+    process.on('SIGTERM', async () => {
       await this.disconnect();
       process.exit(0);
     });
@@ -64,19 +74,33 @@ class Database {
 
   async disconnect() {
     try {
-      await mongoose.connection.close();
-      logger.info('MongoDB 연결이 정상적으로 종료되었습니다.');
+      if (this.sequelize) {
+        await this.sequelize.close();
+        logger.info('PostgreSQL 연결이 정상적으로 종료되었습니다.');
+      }
     } catch (error) {
-      logger.error('MongoDB 연결 종료 중 오류 발생', { error: error.message });
+      logger.error('PostgreSQL 연결 종료 중 오류 발생', { error: error.message });
     }
   }
 
   getConnection() {
-    return this.connection;
+    return this.sequelize;
   }
 
   isConnected() {
-    return mongoose.connection.readyState === 1;
+    return this.sequelize && !this.sequelize.connectionManager.pool._draining;
+  }
+
+  async query(sql, options = {}) {
+    try {
+      return await this.sequelize.query(sql, {
+        type: Sequelize.QueryTypes.SELECT,
+        ...options
+      });
+    } catch (error) {
+      logger.error('쿼리 실행 실패', { error: error.message });
+      throw error;
+    }
   }
 }
 
