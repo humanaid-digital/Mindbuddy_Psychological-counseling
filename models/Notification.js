@@ -1,12 +1,26 @@
 const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
-  user: {
+  recipient: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  // 알림 내용
+  type: {
+    type: String,
+    enum: [
+      'booking_confirmed',
+      'booking_cancelled',
+      'session_starting',
+      'session_ended',
+      'review_received',
+      'counselor_approved',
+      'counselor_rejected',
+      'payment_completed',
+      'reminder'
+    ],
+    required: true
+  },
   title: {
     type: String,
     required: [true, '알림 제목을 입력해주세요'],
@@ -14,23 +28,12 @@ const notificationSchema = new mongoose.Schema({
   },
   message: {
     type: String,
-    required: [true, '알림 메시지를 입력해주세요'],
-    maxlength: [500, '메시지는 500자를 초과할 수 없습니다']
+    required: [true, '알림 내용을 입력해주세요'],
+    maxlength: [500, '내용은 500자를 초과할 수 없습니다']
   },
-  type: {
-    type: String,
-    enum: ['booking', 'payment', 'review', 'system', 'reminder'],
-    required: true
+  data: {
+    type: mongoose.Schema.Types.Mixed
   },
-  // 관련 데이터
-  relatedId: {
-    type: mongoose.Schema.Types.ObjectId
-  },
-  relatedType: {
-    type: String,
-    enum: ['booking', 'review', 'payment', 'user', 'counselor']
-  },
-  // 알림 상태
   isRead: {
     type: Boolean,
     default: false
@@ -38,21 +41,13 @@ const notificationSchema = new mongoose.Schema({
   readAt: {
     type: Date
   },
-  // 전송 정보
-  channels: [{
-    type: String,
-    enum: ['web', 'email', 'sms', 'push']
-  }],
-  sentAt: {
-    type: Date
-  },
-  // 생성 시간
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
 
+<<<<<<< HEAD
 // 알림 읽음 처리
 notificationSchema.methods.markAsRead = function() {
   this.isRead = true;
@@ -92,11 +87,10 @@ notificationSchema.statics.createAndSend = async function(notificationData) {
   return notification;
 };
 
+
 // 인덱스 설정
-notificationSchema.index({ user: 1 });
+notificationSchema.index({ recipient: 1, createdAt: -1 });
 notificationSchema.index({ isRead: 1 });
 notificationSchema.index({ type: 1 });
-notificationSchema.index({ createdAt: -1 });
-notificationSchema.index({ user: 1, isRead: 1 });
 
 module.exports = mongoose.model('Notification', notificationSchema);

@@ -1,11 +1,13 @@
 version: '3.8'
 
 services:
+  # 백엔드 서비스 (Node.js)
   backend:
     build:
       context: .
       dockerfile: Dockerfile.backend
     container_name: mindbuddy-backend
+    restart: unless-stopped
     ports:
       - "5000:5000"
     environment:
@@ -14,6 +16,8 @@ services:
       - MONGODB_URI=mongodb://mongodb:27017/mindbuddy
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
       - FRONTEND_URL=http://localhost:3000
+      - JITSI_DOMAIN=meet.jit.si
+      - JITSI_APP_ID=mindbuddy
     depends_on:
       - mongodb
       - redis
@@ -22,34 +26,36 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./uploads:/app/uploads
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 30s
       timeout: 10s
       retries: 3
 
+  # 프론트엔드 서비스 (정적 파일)
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
     container_name: mindbuddy-frontend
+    restart: unless-stopped
     ports:
       - "3000:80"
     depends_on:
       - backend
     networks:
       - mindbuddy-network
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/"]
       interval: 30s
       timeout: 10s
       retries: 3
 
+  # 데이터베이스 서비스 (MongoDB)
   mongodb:
-    image: mongo:5.0
+    image: mongo:7.0
     container_name: mindbuddy-mongodb
+    restart: unless-stopped
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-password}
@@ -58,10 +64,9 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
-      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - mindbuddy-network
-    restart: unless-stopped
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
       interval: 30s

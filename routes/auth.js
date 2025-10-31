@@ -155,8 +155,8 @@ router.post('/register/counselor', registerLimiter, [
       methods: methods || ['video'],
       introduction,
       // 파일은 별도 업로드 API에서 처리
-      licenseFile: 'pending',
-      resumeFile: 'pending',
+      licenseFile: '',
+      resumeFile: '',
       status: 'pending'
     });
 

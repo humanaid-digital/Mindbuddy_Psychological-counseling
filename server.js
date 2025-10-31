@@ -4,6 +4,16 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+// 필수 환경 변수 검증
+const requiredEnvVars = ['JWT_SECRET', 'MONGODB_URI'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ 필수 환경 변수가 설정되지 않았습니다:', missingEnvVars.join(', '));
+  console.error('📝 .env 파일을 확인하거나 .env.example을 참고하세요.');
+  process.exit(1);
+}
+
 // 유틸리티 import
 const logger = require('./utils/logger');
 const ApiResponse = require('./utils/response');
@@ -72,6 +82,7 @@ app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/payments', require('./routes/payments'));
+app.use('/api/upload', require('./routes/upload'));
 
 // HTML 페이지 라우트 설정
 const htmlRoutes = [

@@ -70,25 +70,42 @@ router.post('/', [auth, clientAuth], [
       });
     }
 
-    // 중복 예약 확인
+    // 중복 예약 확인 - 같은 날짜의 시간 겹침 체크
+    const startDateTime = new Date(bookingDate);
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const [endHour, endMin] = endTime.split(':').map(Number);
+    startDateTime.setHours(startHour, startMin, 0, 0);
+    
+    const endDateTime = new Date(bookingDate);
+    endDateTime.setHours(endHour, endMin, 0, 0);
+
     const existingBooking = await Booking.findOne({
       counselor: counselorId,
-      date: bookingDate,
+      date: {
+        $gte: new Date(bookingDate.getFullYear(), bookingDate.getMonth(), bookingDate.getDate()),
+        $lt: new Date(bookingDate.getFullYear(), bookingDate.getMonth(), bookingDate.getDate() + 1)
+      },
+      status: { $in: ['pending', 'confirmed', 'in-progress'] },
       $or: [
         {
-          startTime: { $lte: startTime },
-          endTime: { $gt: startTime }
+          $and: [
+            { startTime: { $lte: startTime } },
+            { endTime: { $gt: startTime } }
+          ]
         },
         {
-          startTime: { $lt: endTime },
-          endTime: { $gte: endTime }
+          $and: [
+            { startTime: { $lt: endTime } },
+            { endTime: { $gte: endTime } }
+          ]
         },
         {
-          startTime: { $gte: startTime },
-          endTime: { $lte: endTime }
+          $and: [
+            { startTime: { $gte: startTime } },
+            { endTime: { $lte: endTime } }
+          ]
         }
-      ],
-      status: { $in: ['pending', 'confirmed', 'in-progress'] }
+      ]
     });
 
     if (existingBooking) {
