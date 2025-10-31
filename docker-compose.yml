@@ -1,55 +1,189 @@
 version: '3.8'
 
 services:
-  # 백엔드 서비스 (Node.js)
-  backend:
+  # API Gateway
+  api-gateway:
     build:
-      context: .
-      dockerfile: Dockerfile.backend
-    container_name: mindbuddy-backend
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: mindbuddy-gateway
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "8000:8000"
     environment:
       - NODE_ENV=production
-      - PORT=5000
-      - MONGODB_URI=mongodb://mongodb:27017/mindbuddy
+      - GATEWAY_PORT=8000
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
-      - FRONTEND_URL=http://localhost:3000
-      - JITSI_DOMAIN=meet.jit.si
-      - JITSI_APP_ID=mindbuddy
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - BOOKING_SERVICE_URL=http://booking-service:3002
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3003
+      - PAYMENT_SERVICE_URL=http://payment-service:3004
+      - COUNSELOR_SERVICE_URL=http://counselor-service:3005
+    depends_on:
+      - auth-service
+      - booking-service
+      - counselor-service
+    networks:
+      - mindbuddy-network
+
+  # 인증 서비스
+  auth-service:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    container_name: mindbuddy-auth
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongodb:27017/mindbuddy_auth
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - mongodb
       - redis
     networks:
       - mindbuddy-network
-    volumes:
-      - ./logs:/app/logs
-      - ./uploads:/app/uploads
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # 프론트엔드 서비스 (정적 파일)
+  # 예약 서비스
+  booking-service:
+    build:
+      context: ./services/booking
+      dockerfile: Dockerfile
+    container_name: mindbuddy-booking
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - MONGODB_URI=mongodb://mongodb:27017/mindbuddy_booking
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - mindbuddy-network
+
+  # 알림 서비스
+  notification-service:
+    build:
+      context: ./services/notification
+      dockerfile: Dockerfile
+    container_name: mindbuddy-notification
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - MONGODB_URI=mongodb://mongodb:27017/mindbuddy_notification
+      - REDIS_URL=redis://redis:6379
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - mindbuddy-network
+
+  # 결제 서비스
+  payment-service:
+    build:
+      context: ./services/payment
+      dockerfile: Dockerfile
+    container_name: mindbuddy-payment
+    restart: unless-stopped
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+      - MONGODB_URI=mongodb://mongodb:27017/mindbuddy_payment
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - mindbuddy-network
+
+  # 상담사 서비스
+  counselor-service:
+    build:
+      context: ./services/counselor
+      dockerfile: Dockerfile
+    container_name: mindbuddy-counselor
+    restart: unless-stopped
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - MONGODB_URI=mongodb://mongodb:27017/mindbuddy_counselor
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - mindbuddy-network
+
+  # AI 매칭 서비스
+  ai-matching-service:
+    build:
+      context: ./services/ai-matching
+      dockerfile: Dockerfile
+    container_name: mindbuddy-ai-matching
+    restart: unless-stopped
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
+      - MONGODB_URI=mongodb://mongodb:27017/mindbuddy_ai
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - mindbuddy-network
+
+  # 감정 분석 서비스
+  sentiment-service:
+    build:
+      context: ./services/sentiment-analysis
+      dockerfile: Dockerfile
+    container_name: mindbuddy-sentiment
+    restart: unless-stopped
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=production
+      - PORT=3007
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - mindbuddy-network
+
+  # React 프론트엔드
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: mindbuddy-frontend
     restart: unless-stopped
     ports:
       - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+      - REACT_APP_SERVER_URL=http://localhost:8000
     depends_on:
-      - backend
+      - api-gateway
     networks:
       - mindbuddy-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   # 데이터베이스 서비스 (MongoDB)
   mongodb:
@@ -73,25 +207,28 @@ services:
       timeout: 10s
       retries: 3
 
+  # Redis 캐시
   redis:
     image: redis:7-alpine
     container_name: mindbuddy-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
       - mindbuddy-network
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
 
+  # Nginx 로드 밸런서
   nginx:
     image: nginx:alpine
     container_name: mindbuddy-nginx
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
@@ -99,15 +236,45 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
     depends_on:
+      - api-gateway
       - frontend
-      - backend
     networks:
       - mindbuddy-network
+
+  # Elasticsearch (로그 분석)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: mindbuddy-elasticsearch
     restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - mindbuddy-network
+
+  # Kibana (로그 시각화)
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    container_name: mindbuddy-kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - mindbuddy-network
 
 volumes:
   mongodb_data:
   redis_data:
+  elasticsearch_data:
 
 networks:
   mindbuddy-network:

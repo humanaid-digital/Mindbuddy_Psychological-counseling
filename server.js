@@ -55,6 +55,19 @@ app.use(logger.requestLogger());
 // Performance monitoring
 app.use(performanceMonitoring);
 
+// Compression middleware
+const compression = require('compression');
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  level: 6,
+  threshold: 1024
+}));
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -67,6 +80,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 database.connect().catch(err => {
   logger.error('데이터베이스 연결 실패로 서버를 종료합니다.', { error: err.message });
   process.exit(1);
+});
+
+// Redis 캐시 연결 초기화
+const { cache } = require('./utils/cache');
+cache.connect().catch(err => {
+  logger.warn('Redis 연결 실패 - 캐싱 없이 계속 진행합니다.', { error: err.message });
 });
 
 // Health check routes (before rate limiting)

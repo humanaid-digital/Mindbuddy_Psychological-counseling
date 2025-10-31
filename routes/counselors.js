@@ -4,6 +4,8 @@ const Counselor = require('../models/Counselor');
 const User = require('../models/User');
 const Review = require('../models/Review');
 const { auth, counselorAuth } = require('../middleware/auth');
+const { cache, CacheKeys } = require('../utils/cache');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -40,6 +42,23 @@ router.get('/', [
       search
     } = req.query;
 
+    // 캐시 키 생성
+    const cacheKey = CacheKeys.counselors({
+      page, limit, specialty, minFee, maxFee, method, sortBy, search
+    });
+
+    // 캐시에서 데이터 조회 시도
+    let cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      logger.debug('상담사 목록 캐시 히트');
+      return res.json({
+        success: true,
+        data: cachedData.counselors,
+        pagination: cachedData.pagination,
+        cached: true
+      });
+    }
+
     // 필터 조건 구성
     const filter = {
       status: 'approved',
@@ -58,6 +77,20 @@ router.get('/', [
 
     if (method) {
       filter.methods = { $in: [method] };
+    }
+
+    // 검색어가 있는 경우
+    if (search) {
+      const searchRegex = new RegExp(search, 'i');
+      const userIds = await User.find({
+        name: searchRegex
+      }).distinct('_id');
+
+      filter.$or = [
+        { user: { $in: userIds } },
+        { introduction: searchRegex },
+        { specialties: { $in: [searchRegex] } }
+      ];
     }
 
     // 정렬 조건 구성
@@ -85,29 +118,16 @@ router.get('/', [
     // 페이징 계산
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // 상담사 조회
-    const query = Counselor.find(filter)
-      .populate('user', 'name avatar')
-      .sort(sort)
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    // 검색어가 있는 경우
-    if (search) {
-      const searchRegex = new RegExp(search, 'i');
-      const userIds = await User.find({
-        name: searchRegex
-      }).distinct('_id');
-
-      filter.$or = [
-        { user: { $in: userIds } },
-        { introduction: searchRegex },
-        { specialties: { $in: [searchRegex] } }
-      ];
-    }
-
-    const counselors = await query;
-    const total = await Counselor.countDocuments(filter);
+    // 상담사 조회 (최적화된 쿼리)
+    const [counselors, total] = await Promise.all([
+      Counselor.find(filter)
+        .populate('user', 'name avatar')
+        .sort(sort)
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean(), // 성능 향상을 위한 lean() 사용
+      Counselor.countDocuments(filter)
+    ]);
 
     // 응답 데이터 구성
     const counselorsData = counselors.map(counselor => ({
@@ -126,24 +146,31 @@ router.get('/', [
       }
     }));
 
+    const responseData = {
+      counselors: counselorsData,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit)),
+        total,
+        limit: parseInt(limit)
+      },
+      filters: {
+        specialty,
+        minFee,
+        maxFee,
+        method,
+        sortBy
+      }
+    };
+
+    // 캐시에 저장 (5분간)
+    await cache.set(cacheKey, responseData, 300);
+    logger.debug('상담사 목록 캐시 저장');
+
     res.json({
       success: true,
-      data: {
-        counselors: counselorsData,
-        pagination: {
-          current: parseInt(page),
-          pages: Math.ceil(total / parseInt(limit)),
-          total,
-          limit: parseInt(limit)
-        },
-        filters: {
-          specialty,
-          minFee,
-          maxFee,
-          method,
-          sortBy
-        }
-      }
+      data: responseData,
+      cached: false
     });
 
   } catch (error) {
