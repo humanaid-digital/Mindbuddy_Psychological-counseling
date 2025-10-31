@@ -39,9 +39,6 @@
     "docker:hub-down": "docker-compose -f docker-compose.hub.yml down",
     "docker:hub-logs": "docker-compose -f docker-compose.hub.yml logs -f",
     "docker:hub-ps": "docker-compose -f docker-compose.hub.yml ps"
-    "docker:hub-up": "docker-compose -f docker-compose.hub.yml up -d",
-    "docker:hub-down": "docker-compose -f docker-compose.hub.yml down",
-    "docker:hub-logs": "docker-compose -f docker-compose.hub.yml logs -f"
   },
   "keywords": [
     "counseling",
