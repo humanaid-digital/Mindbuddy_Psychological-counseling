@@ -107,3 +107,27 @@ mongodb-binaries/
 
 # Test results
 test-results/
+# AI/ML model files
+*.model
+*.pkl
+*.h5
+
+# Docker volumes
+docker-data/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+
+# Temporary directories
+.tmp/
+temp/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Performance test results
+performance-results/

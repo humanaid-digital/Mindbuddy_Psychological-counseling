@@ -51,7 +51,14 @@ async function optimizeIndexes() {
       status: 1, 
       paymentStatus: 1 
     });
-    await db.collection('bookings').createIndex({ sessionId: 1 });
+    try {
+      await db.collection('bookings').createIndex({ sessionId: 1 }, { name: 'sessionId_booking_1' });
+    } catch (error) {
+      if (error.code !== 86) {
+        throw error;
+      }
+      console.log('  - sessionId 인덱스 이미 존재함');
+    }
 
     // 4. Reviews 컬렉션 인덱스 최적화
     console.log('⭐ Reviews 인덱스 최적화 중...');
@@ -79,14 +86,29 @@ async function optimizeIndexes() {
 
     // 6. ChatMessages 컬렉션 인덱스 최적화
     console.log('💬 ChatMessages 인덱스 최적화 중...');
-    await db.collection('chatmessages').createIndex({ 
-      sessionId: 1, 
-      createdAt: 1 
-    });
-    await db.collection('chatmessages').createIndex({ 
-      sender: 1, 
-      createdAt: -1 
-    });
+    try {
+      await db.collection('chatmessages').createIndex({ 
+        sessionId: 1, 
+        createdAt: 1 
+      }, { name: 'sessionId_createdAt_1' });
+    } catch (error) {
+      if (error.code !== 86) { // 86 = IndexKeySpecsConflict
+        throw error;
+      }
+      console.log('  - sessionId 인덱스 이미 존재함');
+    }
+    
+    try {
+      await db.collection('chatmessages').createIndex({ 
+        sender: 1, 
+        createdAt: -1 
+      });
+    } catch (error) {
+      if (error.code !== 86) {
+        throw error;
+      }
+      console.log('  - sender 인덱스 이미 존재함');
+    }
 
     // 7. Payments 컬렉션 인덱스 최적화
     console.log('💳 Payments 인덱스 최적화 중...');
